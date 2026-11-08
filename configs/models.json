@@ -1,0 +1,16 @@
+{
+  "provider": "openai",
+  "endpoint": "https://api.openai.com/v1/responses",
+  "documentation_checked_on": "2026-11-08",
+  "documentation": "https://developers.openai.com/api/docs/models",
+  "account_access_verified": false,
+  "models": [
+    {"alias": "astra", "model": "gpt-6-astra", "role": "frontier", "reasoning_effort": "high", "max_output_tokens": 8192},
+    {"alias": "sol", "model": "gpt-6.1-sol", "role": "frontier", "reasoning_effort": "high", "max_output_tokens": 8192},
+    {"alias": "luna", "model": "gpt-6-luna", "role": "smaller_faster", "reasoning_effort": "high", "max_output_tokens": 8192}
+  ],
+  "temperature": null,
+  "temperature_note": "Omitted from requests. Provider default; no unsupported sampling parameter is imposed.",
+  "version_note": "These are the exact documented request IDs, not immutable dated snapshots. Persist response.model and run date; do not claim snapshot pinning.",
+  "comparison_limit": "One provider/model family; not a cross-family comparison. Performance ordering is an empirical hypothesis."
+}

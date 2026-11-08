@@ -1,0 +1,17 @@
+[project]
+name = "asof-ledger-eval"
+version = "0.1.0"
+description = "Deterministic evaluation of point-in-time SQL reconstruction"
+requires-python = ">=3.13,<3.14"
+dependencies = ["httpx==0.28.1"]
+
+[dependency-groups]
+dev = ["pytest==8.4.2"]
+
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-ra"

@@ -1,0 +1,653 @@
+[
+  {
+    "name": "empty",
+    "rationale": "Empty history returns an empty relation with the required columns.",
+    "parameters": {
+      "effective_cutoff": "2026-10-30T10:00:00Z",
+      "recorded_cutoff": "2026-10-30T12:00:00Z"
+    },
+    "rows": [],
+    "expected": []
+  },
+  {
+    "name": "single_state",
+    "rationale": "Straightforward baseline.",
+    "parameters": {
+      "effective_cutoff": "2026-10-30T10:00:00Z",
+      "recorded_cutoff": "2026-10-30T12:00:00Z"
+    },
+    "rows": [
+      {
+        "version_id": 4,
+        "order_id": "A",
+        "effective_at": "2026-10-30T08:00:00Z",
+        "recorded_at": "2026-10-30T08:05:00Z",
+        "symbol": "XYZ",
+        "side": "BUY",
+        "open_qty": 10,
+        "limit_price_cents": 12345
+      }
+    ],
+    "expected": [
+      [
+        "A",
+        "XYZ",
+        "BUY",
+        10,
+        12345
+      ]
+    ]
+  },
+  {
+    "name": "inclusive_both_boundaries",
+    "rationale": "Both exact boundaries must be included.",
+    "parameters": {
+      "effective_cutoff": "2026-10-30T10:00:00Z",
+      "recorded_cutoff": "2026-10-30T12:00:00Z"
+    },
+    "rows": [
+      {
+        "version_id": 1,
+        "order_id": "A",
+        "effective_at": "2026-10-30T10:00:00Z",
+        "recorded_at": "2026-10-30T12:00:00Z",
+        "symbol": "XYZ",
+        "side": "BUY",
+        "open_qty": 17,
+        "limit_price_cents": 12345
+      }
+    ],
+    "expected": [
+      [
+        "A",
+        "XYZ",
+        "BUY",
+        17,
+        12345
+      ]
+    ]
+  },
+  {
+    "name": "exclude_future_effective",
+    "rationale": "A recorded scheduled amendment is not yet effective.",
+    "parameters": {
+      "effective_cutoff": "2026-10-30T10:00:00Z",
+      "recorded_cutoff": "2026-10-30T12:00:00Z"
+    },
+    "rows": [
+      {
+        "version_id": 1,
+        "order_id": "A",
+        "effective_at": "2026-10-30T08:00:00Z",
+        "recorded_at": "2026-10-30T08:00:00Z",
+        "symbol": "XYZ",
+        "side": "BUY",
+        "open_qty": 10,
+        "limit_price_cents": 12345
+      },
+      {
+        "version_id": 2,
+        "order_id": "A",
+        "effective_at": "2026-10-30T10:01:00Z",
+        "recorded_at": "2026-10-30T09:00:00Z",
+        "symbol": "XYZ",
+        "side": "BUY",
+        "open_qty": 99,
+        "limit_price_cents": 12345
+      }
+    ],
+    "expected": [
+      [
+        "A",
+        "XYZ",
+        "BUY",
+        10,
+        12345
+      ]
+    ]
+  },
+  {
+    "name": "exclude_future_recorded",
+    "rationale": "An effective amendment not yet known cannot affect this report.",
+    "parameters": {
+      "effective_cutoff": "2026-10-30T10:00:00Z",
+      "recorded_cutoff": "2026-10-30T12:00:00Z"
+    },
+    "rows": [
+      {
+        "version_id": 1,
+        "order_id": "A",
+        "effective_at": "2026-10-30T08:00:00Z",
+        "recorded_at": "2026-10-30T08:00:00Z",
+        "symbol": "XYZ",
+        "side": "BUY",
+        "open_qty": 10,
+        "limit_price_cents": 12345
+      },
+      {
+        "version_id": 2,
+        "order_id": "A",
+        "effective_at": "2026-10-30T09:00:00Z",
+        "recorded_at": "2026-10-30T12:01:00Z",
+        "symbol": "XYZ",
+        "side": "BUY",
+        "open_qty": 99,
+        "limit_price_cents": 12345
+      }
+    ],
+    "expected": [
+      [
+        "A",
+        "XYZ",
+        "BUY",
+        10,
+        12345
+      ]
+    ]
+  },
+  {
+    "name": "late_correction_same_effective",
+    "rationale": "Exclude an invisible correction without losing the visible same-time version.",
+    "parameters": {
+      "effective_cutoff": "2026-10-30T10:00:00Z",
+      "recorded_cutoff": "2026-10-30T12:00:00Z"
+    },
+    "rows": [
+      {
+        "version_id": 3,
+        "order_id": "A",
+        "effective_at": "2026-10-30T09:00:00Z",
+        "recorded_at": "2026-10-30T12:01:00Z",
+        "symbol": "XYZ",
+        "side": "BUY",
+        "open_qty": 900,
+        "limit_price_cents": 12345
+      },
+      {
+        "version_id": 2,
+        "order_id": "A",
+        "effective_at": "2026-10-30T09:00:00Z",
+        "recorded_at": "2026-10-30T11:00:00Z",
+        "symbol": "XYZ",
+        "side": "BUY",
+        "open_qty": 12,
+        "limit_price_cents": 12345
+      },
+      {
+        "version_id": 1,
+        "order_id": "A",
+        "effective_at": "2026-10-30T08:00:00Z",
+        "recorded_at": "2026-10-30T08:00:00Z",
+        "symbol": "XYZ",
+        "side": "BUY",
+        "open_qty": 10,
+        "limit_price_cents": 12345
+      }
+    ],
+    "expected": [
+      [
+        "A",
+        "XYZ",
+        "BUY",
+        12,
+        12345
+      ]
+    ]
+  },
+  {
+    "name": "effective_precedes_recorded",
+    "rationale": "A later arrival correcting an older state cannot overwrite a later effective state.",
+    "parameters": {
+      "effective_cutoff": "2026-10-30T10:00:00Z",
+      "recorded_cutoff": "2026-10-30T12:00:00Z"
+    },
+    "rows": [
+      {
+        "version_id": 7,
+        "order_id": "A",
+        "effective_at": "2026-10-30T08:00:00Z",
+        "recorded_at": "2026-10-30T11:30:00Z",
+        "symbol": "XYZ",
+        "side": "BUY",
+        "open_qty": 88,
+        "limit_price_cents": 12345
+      },
+      {
+        "version_id": 3,
+        "order_id": "A",
+        "effective_at": "2026-10-30T09:00:00Z",
+        "recorded_at": "2026-10-30T09:15:00Z",
+        "symbol": "XYZ",
+        "side": "BUY",
+        "open_qty": 20,
+        "limit_price_cents": 12345
+      },
+      {
+        "version_id": 9,
+        "order_id": "A",
+        "effective_at": "2026-10-30T08:00:00Z",
+        "recorded_at": "2026-10-30T08:10:00Z",
+        "symbol": "XYZ",
+        "side": "BUY",
+        "open_qty": 10,
+        "limit_price_cents": 12345
+      }
+    ],
+    "expected": [
+      [
+        "A",
+        "XYZ",
+        "BUY",
+        20,
+        12345
+      ]
+    ]
+  },
+  {
+    "name": "same_effective_latest_correction",
+    "rationale": "Recorded time breaks a tie on effective time.",
+    "parameters": {
+      "effective_cutoff": "2026-10-30T10:00:00Z",
+      "recorded_cutoff": "2026-10-30T12:00:00Z"
+    },
+    "rows": [
+      {
+        "version_id": 8,
+        "order_id": "A",
+        "effective_at": "2026-10-30T09:00:00Z",
+        "recorded_at": "2026-10-30T09:10:00Z",
+        "symbol": "XYZ",
+        "side": "BUY",
+        "open_qty": 20,
+        "limit_price_cents": 12345
+      },
+      {
+        "version_id": 2,
+        "order_id": "A",
+        "effective_at": "2026-10-30T09:00:00Z",
+        "recorded_at": "2026-10-30T11:00:00Z",
+        "symbol": "XYZ",
+        "side": "BUY",
+        "open_qty": 25,
+        "limit_price_cents": 12345
+      }
+    ],
+    "expected": [
+      [
+        "A",
+        "XYZ",
+        "BUY",
+        25,
+        12345
+      ]
+    ]
+  },
+  {
+    "name": "eligibility_before_ranking",
+    "rationale": "Ranking the complete history then filtering can omit an order incorrectly.",
+    "parameters": {
+      "effective_cutoff": "2026-10-30T10:00:00Z",
+      "recorded_cutoff": "2026-10-30T12:00:00Z"
+    },
+    "rows": [
+      {
+        "version_id": 1,
+        "order_id": "A",
+        "effective_at": "2026-10-30T08:00:00Z",
+        "recorded_at": "2026-10-30T08:00:00Z",
+        "symbol": "XYZ",
+        "side": "BUY",
+        "open_qty": 10,
+        "limit_price_cents": 12345
+      },
+      {
+        "version_id": 2,
+        "order_id": "A",
+        "effective_at": "2026-10-30T11:00:00Z",
+        "recorded_at": "2026-10-30T11:00:00Z",
+        "symbol": "XYZ",
+        "side": "BUY",
+        "open_qty": 99,
+        "limit_price_cents": 12345
+      }
+    ],
+    "expected": [
+      [
+        "A",
+        "XYZ",
+        "BUY",
+        10,
+        12345
+      ]
+    ]
+  },
+  {
+    "name": "keep_zero_quantity",
+    "rationale": "A zero quantity is a retained state, not a deletion.",
+    "parameters": {
+      "effective_cutoff": "2026-10-30T10:00:00Z",
+      "recorded_cutoff": "2026-10-30T12:00:00Z"
+    },
+    "rows": [
+      {
+        "version_id": 1,
+        "order_id": "A",
+        "effective_at": "2026-10-30T08:00:00Z",
+        "recorded_at": "2026-10-30T08:00:00Z",
+        "symbol": "XYZ",
+        "side": "BUY",
+        "open_qty": 10,
+        "limit_price_cents": 12345
+      },
+      {
+        "version_id": 2,
+        "order_id": "A",
+        "effective_at": "2026-10-30T09:00:00Z",
+        "recorded_at": "2026-10-30T09:00:00Z",
+        "symbol": "XYZ",
+        "side": "BUY",
+        "open_qty": 0,
+        "limit_price_cents": 0
+      }
+    ],
+    "expected": [
+      [
+        "A",
+        "XYZ",
+        "BUY",
+        0,
+        0
+      ]
+    ]
+  },
+  {
+    "name": "orders_without_eligible_state",
+    "rationale": "Omit only ineligible orders; do not add fabricated zero rows.",
+    "parameters": {
+      "effective_cutoff": "2026-10-30T10:00:00Z",
+      "recorded_cutoff": "2026-10-30T12:00:00Z"
+    },
+    "rows": [
+      {
+        "version_id": 1,
+        "order_id": "A",
+        "effective_at": "2026-10-30T08:00:00Z",
+        "recorded_at": "2026-10-30T08:00:00Z",
+        "symbol": "XYZ",
+        "side": "BUY",
+        "open_qty": 10,
+        "limit_price_cents": 12345
+      },
+      {
+        "version_id": 2,
+        "order_id": "B",
+        "effective_at": "2026-10-30T11:00:00Z",
+        "recorded_at": "2026-10-30T09:00:00Z",
+        "symbol": "XYZ",
+        "side": "BUY",
+        "open_qty": 22,
+        "limit_price_cents": 12345
+      },
+      {
+        "version_id": 3,
+        "order_id": "C",
+        "effective_at": "2026-10-30T08:00:00Z",
+        "recorded_at": "2026-10-30T13:00:00Z",
+        "symbol": "XYZ",
+        "side": "BUY",
+        "open_qty": 33,
+        "limit_price_cents": 12345
+      },
+      {
+        "version_id": 4,
+        "order_id": "D",
+        "effective_at": "2026-10-30T07:00:00Z",
+        "recorded_at": "2026-10-30T08:00:00Z",
+        "symbol": "ABC",
+        "side": "SELL",
+        "open_qty": 5,
+        "limit_price_cents": 9800
+      }
+    ],
+    "expected": [
+      [
+        "A",
+        "XYZ",
+        "BUY",
+        10,
+        12345
+      ],
+      [
+        "D",
+        "ABC",
+        "SELL",
+        5,
+        9800
+      ]
+    ]
+  },
+  {
+    "name": "storage_id_is_not_precedence",
+    "rationale": "Storage IDs and row insertion order are unrelated to state chronology.",
+    "parameters": {
+      "effective_cutoff": "2026-10-30T10:00:00Z",
+      "recorded_cutoff": "2026-10-30T12:00:00Z"
+    },
+    "rows": [
+      {
+        "version_id": 1,
+        "order_id": "A",
+        "effective_at": "2026-10-30T09:00:00Z",
+        "recorded_at": "2026-10-30T10:00:00Z",
+        "symbol": "XYZ",
+        "side": "BUY",
+        "open_qty": 25,
+        "limit_price_cents": 12345
+      },
+      {
+        "version_id": 900,
+        "order_id": "A",
+        "effective_at": "2026-10-30T08:00:00Z",
+        "recorded_at": "2026-10-30T11:00:00Z",
+        "symbol": "XYZ",
+        "side": "BUY",
+        "open_qty": 100,
+        "limit_price_cents": 12345
+      },
+      {
+        "version_id": 700,
+        "order_id": "A",
+        "effective_at": "2026-10-30T09:00:00Z",
+        "recorded_at": "2026-10-30T09:00:00Z",
+        "symbol": "XYZ",
+        "side": "BUY",
+        "open_qty": 20,
+        "limit_price_cents": 12345
+      }
+    ],
+    "expected": [
+      [
+        "A",
+        "XYZ",
+        "BUY",
+        25,
+        12345
+      ]
+    ]
+  },
+  {
+    "name": "preserve_whole_winning_row",
+    "rationale": "Independent MAX operations cannot synthesize a winning state.",
+    "parameters": {
+      "effective_cutoff": "2026-10-30T10:00:00Z",
+      "recorded_cutoff": "2026-10-30T12:00:00Z"
+    },
+    "rows": [
+      {
+        "version_id": 1,
+        "order_id": "A",
+        "effective_at": "2026-10-30T08:00:00Z",
+        "recorded_at": "2026-10-30T11:00:00Z",
+        "symbol": "OLD",
+        "side": "SELL",
+        "open_qty": 90,
+        "limit_price_cents": 99999
+      },
+      {
+        "version_id": 2,
+        "order_id": "A",
+        "effective_at": "2026-10-30T09:00:00Z",
+        "recorded_at": "2026-10-30T09:00:00Z",
+        "symbol": "NEW",
+        "side": "SELL",
+        "open_qty": 12,
+        "limit_price_cents": 12000
+      },
+      {
+        "version_id": 3,
+        "order_id": "A",
+        "effective_at": "2026-10-30T09:00:00Z",
+        "recorded_at": "2026-10-30T10:00:00Z",
+        "symbol": "NEW",
+        "side": "BUY",
+        "open_qty": 4,
+        "limit_price_cents": 11000
+      }
+    ],
+    "expected": [
+      [
+        "A",
+        "NEW",
+        "BUY",
+        4,
+        11000
+      ]
+    ]
+  },
+  {
+    "name": "knowledge_cutoff_before_effective_cutoff",
+    "rationale": "The two cutoffs have different roles even when K < T.",
+    "parameters": {
+      "effective_cutoff": "2026-10-30T10:00:00Z",
+      "recorded_cutoff": "2026-10-30T09:00:00Z"
+    },
+    "rows": [
+      {
+        "version_id": 1,
+        "order_id": "A",
+        "effective_at": "2026-10-30T08:00:00Z",
+        "recorded_at": "2026-10-30T08:00:00Z",
+        "symbol": "XYZ",
+        "side": "BUY",
+        "open_qty": 10,
+        "limit_price_cents": 12345
+      },
+      {
+        "version_id": 2,
+        "order_id": "A",
+        "effective_at": "2026-10-30T09:30:00Z",
+        "recorded_at": "2026-10-30T08:30:00Z",
+        "symbol": "XYZ",
+        "side": "BUY",
+        "open_qty": 15,
+        "limit_price_cents": 12345
+      },
+      {
+        "version_id": 3,
+        "order_id": "A",
+        "effective_at": "2026-10-30T09:00:00Z",
+        "recorded_at": "2026-10-30T09:30:00Z",
+        "symbol": "XYZ",
+        "side": "BUY",
+        "open_qty": 20,
+        "limit_price_cents": 12345
+      }
+    ],
+    "expected": [
+      [
+        "A",
+        "XYZ",
+        "BUY",
+        15,
+        12345
+      ]
+    ]
+  },
+  {
+    "name": "no_eligible_versions",
+    "rationale": "Nonempty input can have an empty snapshot.",
+    "parameters": {
+      "effective_cutoff": "2026-10-30T10:00:00Z",
+      "recorded_cutoff": "2026-10-30T12:00:00Z"
+    },
+    "rows": [
+      {
+        "version_id": 1,
+        "order_id": "A",
+        "effective_at": "2026-10-30T11:00:00Z",
+        "recorded_at": "2026-10-30T09:00:00Z",
+        "symbol": "XYZ",
+        "side": "BUY",
+        "open_qty": 10,
+        "limit_price_cents": 12345
+      },
+      {
+        "version_id": 2,
+        "order_id": "B",
+        "effective_at": "2026-10-30T08:00:00Z",
+        "recorded_at": "2026-10-30T13:00:00Z",
+        "symbol": "XYZ",
+        "side": "BUY",
+        "open_qty": 20,
+        "limit_price_cents": 12345
+      }
+    ],
+    "expected": []
+  },
+  {
+    "name": "case_sensitive_entity_ids",
+    "rationale": "Distinct case-sensitive identifiers remain distinct orders.",
+    "parameters": {
+      "effective_cutoff": "2026-10-30T10:00:00Z",
+      "recorded_cutoff": "2026-10-30T12:00:00Z"
+    },
+    "rows": [
+      {
+        "version_id": 1,
+        "order_id": "ord-a",
+        "effective_at": "2026-10-30T08:00:00Z",
+        "recorded_at": "2026-10-30T08:00:00Z",
+        "symbol": "XYZ",
+        "side": "BUY",
+        "open_qty": 4,
+        "limit_price_cents": 12345
+      },
+      {
+        "version_id": 2,
+        "order_id": "ORD-A",
+        "effective_at": "2026-10-30T09:00:00Z",
+        "recorded_at": "2026-10-30T09:00:00Z",
+        "symbol": "XYZ",
+        "side": "BUY",
+        "open_qty": 7,
+        "limit_price_cents": 12345
+      }
+    ],
+    "expected": [
+      [
+        "ORD-A",
+        "XYZ",
+        "BUY",
+        7,
+        12345
+      ],
+      [
+        "ord-a",
+        "XYZ",
+        "BUY",
+        4,
+        12345
+      ]
+    ]
+  }
+]

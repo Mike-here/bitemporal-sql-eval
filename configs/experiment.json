@@ -1,0 +1,14 @@
+{
+  "status": "development_not_frozen",
+  "tasks_planned": ["t01", "t02", "t03", "t04", "t05", "t06"],
+  "tasks_implemented": ["t01"],
+  "trials_per_task_per_model": 3,
+  "planned_attempts": 54,
+  "tools": [],
+  "fresh_context_each_trial": true,
+  "primary_score": "A task attempt passes iff every fixture passes.",
+  "diagnostic_score": "Fraction of fixtures passed, not independent task observations.",
+  "retries": "No automatic retries. Transport/API failures remain recorded and separate from model failures.",
+  "human_review": "Pending participant review of each task, reference, oracle and grader.",
+  "live_runs_completed": 0
+}

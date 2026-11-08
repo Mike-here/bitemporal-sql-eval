@@ -1,0 +1,12 @@
+{
+  "id": "t01",
+  "title": "Baseline bitemporal order-state reconstruction",
+  "status": "implemented_pending_human_review_and_model_calibration",
+  "failure_hypothesis": "Models fail to preserve the interaction between knowledge visibility and effective-state precedence when corrections arrive out of order.",
+  "output_columns": ["order_id", "symbol", "side", "open_qty", "limit_price_cents"],
+  "output_types": ["text", "text", "text", "integer", "integer"],
+  "fixture_files": ["fixtures/hand_cases.json", "fixtures/generated_cases.json"],
+  "primary_score": "all fixtures pass",
+  "diagnostic_score": "fixture pass fraction only",
+  "calibration_note": "Frontier/smaller-model success is unknown until measured. Do not force the requested spread or select formal trials by outcome."
+}
