@@ -35,7 +35,7 @@ def package(destination: Path):
         paths.extend(path for path in (ROOT / directory).rglob("*")
                      if path.is_file() and path.suffix in SUFFIXES
                      and "__pycache__" not in path.parts and not path.name.startswith("."))
-    paths = sorted(set(paths))
+    paths = sorted(path for path in set(paths) if path.resolve()!=destination.resolve())
     destination.parent.mkdir(parents=True, exist_ok=True)
     with zipfile.ZipFile(destination, "w", compression=zipfile.ZIP_DEFLATED) as archive:
         for path in paths:

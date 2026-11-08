@@ -46,8 +46,9 @@ fraction of tasks passed on every trial. Provider errors and incomplete outputs
 must be separately visible; report completion rate and end-to-end success as well
 as success conditional on completion. Do not silently retry them.
 
-The current authorized fallback uses one OpenAI family, so it supports only a
-within-family scale comparison until Gemini authentication is restored. The
-three t01 diagnostic attempts returned API errors, not model answers, and are
-not scores. General correctness of arbitrary SQL is not proven by finite fixtures.
+The current matrix selects OpenAI Astra, Gemini 3.1 Pro Preview, and OpenAI Luna.
+Both replacement keys authenticate to their catalogs, but generation remains
+blocked by OpenAI exhausted credits and Gemini RESOURCE_EXHAUSTED. All six t01
+diagnostic attempts returned API errors, not model answers, and are not scores.
+General correctness of arbitrary SQL is not proven by finite fixtures.
 SQLite execution is a query-only boundary, not a general native-code sandbox.

@@ -1,6 +1,6 @@
 {
   "kind": "local_grader_validation_NOT_model_results",
-  "created_at": "2026-11-08T22:40:36.337695+00:00",
+  "created_at": "2026-11-08T22:45:14.521942+00:00",
   "python": "3.13.9",
   "sqlite": "3.51.0",
   "fixtures": 40,
@@ -35610,8 +35610,8 @@
     "reference/t01/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "reference/t01/oracle.py": "cd65adf4e9cee2df7935ed29d8fa48ea34f0ba3370182467749de39941b65231",
     "reference/t01/solution.sql": "253aa906cd95bc0f9a52aef03d911974479e8b76dd6063134cba582fa09ee6d1",
-    "configs/models.json": "2e895df0d9af44dfab1e02a933804d5ebfe4377978432c7554d3bde0678496e5",
-    "configs/experiment.json": "3d4df608f74256e84b1107fa4ffdd4fd31523c9e6b90576199c6ad178050535b",
+    "configs/models.json": "a8b4f18b1ffe22987ff5b7fb508496452f5c94ae2b3dc9cb6432349afb590a8f",
+    "configs/experiment.json": "288d3f4c610bc7708b2ec5a5e3fa9bdafc2d9304f13b687220e05ca731028f55",
     "pyproject.toml": "ffd5d3c7f1930aef7c8b7786a39c0f9bdcae7c6f78670b510cac31ac2a7f0927",
     ".python-version": "02e735b3dfe1c32833eb550b7ff8ffa17f5f2bc3fa1e7bae61a8f5a3883ce398",
     "uv.lock": "dbc9564f9e47acd819f90a51d73f9b3359c58c72f546f0351c502a2f207f9477"

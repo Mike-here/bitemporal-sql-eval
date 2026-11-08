@@ -1,6 +1,6 @@
 {
   "kind": "offline_suite_validation_not_model_scores",
-  "created_at": "2026-11-08T22:40:36.411983+00:00",
+  "created_at": "2026-11-08T22:45:14.602365+00:00",
   "sqlite": "3.51.0",
   "tasks": {
     "t01": {
@@ -432,8 +432,8 @@
         "reference/t01/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
         "reference/t01/oracle.py": "cd65adf4e9cee2df7935ed29d8fa48ea34f0ba3370182467749de39941b65231",
         "reference/t01/solution.sql": "253aa906cd95bc0f9a52aef03d911974479e8b76dd6063134cba582fa09ee6d1",
-        "configs/models.json": "2e895df0d9af44dfab1e02a933804d5ebfe4377978432c7554d3bde0678496e5",
-        "configs/experiment.json": "3d4df608f74256e84b1107fa4ffdd4fd31523c9e6b90576199c6ad178050535b",
+        "configs/models.json": "a8b4f18b1ffe22987ff5b7fb508496452f5c94ae2b3dc9cb6432349afb590a8f",
+        "configs/experiment.json": "288d3f4c610bc7708b2ec5a5e3fa9bdafc2d9304f13b687220e05ca731028f55",
         "pyproject.toml": "ffd5d3c7f1930aef7c8b7786a39c0f9bdcae7c6f78670b510cac31ac2a7f0927",
         ".python-version": "02e735b3dfe1c32833eb550b7ff8ffa17f5f2bc3fa1e7bae61a8f5a3883ce398",
         "uv.lock": "dbc9564f9e47acd819f90a51d73f9b3359c58c72f546f0351c502a2f207f9477"
@@ -580,8 +580,8 @@
         "reference/t02/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
         "reference/t02/oracle.py": "d2c5d56b597d4190e6c4a012dddd76bd6df14fa8776018afc3eb6c63e0a8528d",
         "reference/t02/solution.sql": "47f72f43758a4ea3d46e43345abb6b59344a949bff567f469860807edea774ae",
-        "configs/models.json": "2e895df0d9af44dfab1e02a933804d5ebfe4377978432c7554d3bde0678496e5",
-        "configs/experiment.json": "3d4df608f74256e84b1107fa4ffdd4fd31523c9e6b90576199c6ad178050535b",
+        "configs/models.json": "a8b4f18b1ffe22987ff5b7fb508496452f5c94ae2b3dc9cb6432349afb590a8f",
+        "configs/experiment.json": "288d3f4c610bc7708b2ec5a5e3fa9bdafc2d9304f13b687220e05ca731028f55",
         "pyproject.toml": "ffd5d3c7f1930aef7c8b7786a39c0f9bdcae7c6f78670b510cac31ac2a7f0927",
         ".python-version": "02e735b3dfe1c32833eb550b7ff8ffa17f5f2bc3fa1e7bae61a8f5a3883ce398",
         "uv.lock": "dbc9564f9e47acd819f90a51d73f9b3359c58c72f546f0351c502a2f207f9477"
@@ -807,8 +807,8 @@
         "reference/t03/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
         "reference/t03/oracle.py": "2eeb57bf806af238c2d371572e8f7696494563e1ece439cae6a9c9d52fe31573",
         "reference/t03/solution.sql": "079c7b1da9f5a5113c91533dbbb647086435a67624f0ce046910fc2f5e9c8ac2",
-        "configs/models.json": "2e895df0d9af44dfab1e02a933804d5ebfe4377978432c7554d3bde0678496e5",
-        "configs/experiment.json": "3d4df608f74256e84b1107fa4ffdd4fd31523c9e6b90576199c6ad178050535b",
+        "configs/models.json": "a8b4f18b1ffe22987ff5b7fb508496452f5c94ae2b3dc9cb6432349afb590a8f",
+        "configs/experiment.json": "288d3f4c610bc7708b2ec5a5e3fa9bdafc2d9304f13b687220e05ca731028f55",
         "pyproject.toml": "ffd5d3c7f1930aef7c8b7786a39c0f9bdcae7c6f78670b510cac31ac2a7f0927",
         ".python-version": "02e735b3dfe1c32833eb550b7ff8ffa17f5f2bc3fa1e7bae61a8f5a3883ce398",
         "uv.lock": "dbc9564f9e47acd819f90a51d73f9b3359c58c72f546f0351c502a2f207f9477"
@@ -1058,8 +1058,8 @@
         "reference/t04/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
         "reference/t04/oracle.py": "2d4cd3194704914d6e9b034df0a54bbbc91440dca955a92b9641f83b9236d657",
         "reference/t04/solution.sql": "48e379ce4756cbc8bb780af09d2afef67726a310d64b388b06759ec3d6fd7dd1",
-        "configs/models.json": "2e895df0d9af44dfab1e02a933804d5ebfe4377978432c7554d3bde0678496e5",
-        "configs/experiment.json": "3d4df608f74256e84b1107fa4ffdd4fd31523c9e6b90576199c6ad178050535b",
+        "configs/models.json": "a8b4f18b1ffe22987ff5b7fb508496452f5c94ae2b3dc9cb6432349afb590a8f",
+        "configs/experiment.json": "288d3f4c610bc7708b2ec5a5e3fa9bdafc2d9304f13b687220e05ca731028f55",
         "pyproject.toml": "ffd5d3c7f1930aef7c8b7786a39c0f9bdcae7c6f78670b510cac31ac2a7f0927",
         ".python-version": "02e735b3dfe1c32833eb550b7ff8ffa17f5f2bc3fa1e7bae61a8f5a3883ce398",
         "uv.lock": "dbc9564f9e47acd819f90a51d73f9b3359c58c72f546f0351c502a2f207f9477"
@@ -1313,8 +1313,8 @@
         "reference/t05/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
         "reference/t05/oracle.py": "98b8b4d6b1bed7a9bebac750daaa6d9c1f4d33c697063413a610c67e44f306c9",
         "reference/t05/solution.sql": "01f35327de8ca039f40e4c670b96b1e14f2d63cb5958c2f0f437870a0b5fecfc",
-        "configs/models.json": "2e895df0d9af44dfab1e02a933804d5ebfe4377978432c7554d3bde0678496e5",
-        "configs/experiment.json": "3d4df608f74256e84b1107fa4ffdd4fd31523c9e6b90576199c6ad178050535b",
+        "configs/models.json": "a8b4f18b1ffe22987ff5b7fb508496452f5c94ae2b3dc9cb6432349afb590a8f",
+        "configs/experiment.json": "288d3f4c610bc7708b2ec5a5e3fa9bdafc2d9304f13b687220e05ca731028f55",
         "pyproject.toml": "ffd5d3c7f1930aef7c8b7786a39c0f9bdcae7c6f78670b510cac31ac2a7f0927",
         ".python-version": "02e735b3dfe1c32833eb550b7ff8ffa17f5f2bc3fa1e7bae61a8f5a3883ce398",
         "uv.lock": "dbc9564f9e47acd819f90a51d73f9b3359c58c72f546f0351c502a2f207f9477"
@@ -1692,8 +1692,8 @@
         "reference/t06/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
         "reference/t06/oracle.py": "2cae12c09281675091bda491d93e9cab8564888e8d8417f3b34b124d19adc6d2",
         "reference/t06/solution.sql": "6e1241bf6b4d2ef2411d7518ba192be49f65d1be90f5d7839ded76e8928d0e30",
-        "configs/models.json": "2e895df0d9af44dfab1e02a933804d5ebfe4377978432c7554d3bde0678496e5",
-        "configs/experiment.json": "3d4df608f74256e84b1107fa4ffdd4fd31523c9e6b90576199c6ad178050535b",
+        "configs/models.json": "a8b4f18b1ffe22987ff5b7fb508496452f5c94ae2b3dc9cb6432349afb590a8f",
+        "configs/experiment.json": "288d3f4c610bc7708b2ec5a5e3fa9bdafc2d9304f13b687220e05ca731028f55",
         "pyproject.toml": "ffd5d3c7f1930aef7c8b7786a39c0f9bdcae7c6f78670b510cac31ac2a7f0927",
         ".python-version": "02e735b3dfe1c32833eb550b7ff8ffa17f5f2bc3fa1e7bae61a8f5a3883ce398",
         "uv.lock": "dbc9564f9e47acd819f90a51d73f9b3359c58c72f546f0351c502a2f207f9477"
@@ -1717,11 +1717,35 @@
     },
     {
       "provider": "openai",
+      "requested_model": "gpt-6-astra",
+      "phase": "diagnostic",
+      "status": "api_error",
+      "error": "HTTP 429; code=credit_balance_exhausted; type=insufficient_quota; request_id=req_379e156a7d36425fbd64d008f71575e5",
+      "elapsed_seconds": 1.172912
+    },
+    {
+      "provider": "gemini",
+      "requested_model": "gemini-3.1-pro-preview",
+      "phase": "diagnostic",
+      "status": "api_error",
+      "error": "HTTP 429; status=RESOURCE_EXHAUSTED; request_id=unavailable",
+      "elapsed_seconds": 0.141568
+    },
+    {
+      "provider": "openai",
       "requested_model": "gpt-6-luna",
       "phase": "diagnostic",
       "status": "api_error",
       "error": "HTTP 429; request_id=req_6094f19df8994bc1a33c0dbb7207841f",
       "elapsed_seconds": 1.376895
+    },
+    {
+      "provider": "openai",
+      "requested_model": "gpt-6-luna",
+      "phase": "diagnostic",
+      "status": "api_error",
+      "error": "HTTP 429; code=credit_balance_exhausted; type=insufficient_quota; request_id=req_85a84629df7149878aa332f73076e1f8",
+      "elapsed_seconds": 1.33462
     },
     {
       "provider": "openai",

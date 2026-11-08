@@ -8,7 +8,7 @@ reporting depend on getting these interactions right.
 
 **Status:** all six tasks implemented and verified offline. Michael Acheampong
 human-verified t01's prompt, SQL reference and Python oracle. t02–t06 await his
-review. Three live t01 diagnostic attempts returned quota errors without producing
+review. Six live t01 diagnostic attempts returned quota errors without producing
 answers. No empirical model pass rates or frontier capability findings exist yet.
 This is a development checkpoint, not the final hackathon submission.
 
@@ -95,31 +95,37 @@ uv run python -m harness.run --task t01 --model astra --trials 1 --phase diagnos
 
 These deliberately selected commands contact providers; generation incurs usage.
 Live catalogs were checked on November 8, 2026. OpenAI listed `gpt-6-astra`,
-`gpt-6.1-sol`, and `gpt-6-luna`. Gemini's native `/v1beta/models` returned HTTP 401,
-so no usable Gemini ID has been verified. Michael authorized the OpenAI fallback
-while resolving Gemini credentials. The native Gemini adapter supports explicit
-thinking configuration and has mocked tests, but no live Gemini inference.
+`gpt-6.1-sol`, and `gpt-6-luna`. Gemini initially returned HTTP 401. After Michael
+replaced the keys, both catalogs authenticated; Gemini lists
+`gemini-3.1-pro-preview` with generateContent support. Initial and replacement-key
+catalog evidence are preserved separately. Generation access remains unverified
+because the replacement-key attempts also returned quota errors.
 
-The current matrix requests Astra and Sol as frontier models and Luna as the
-smaller/faster comparison, all with high reasoning effort, an 8,192-token output
-cap, no tools, and omitted temperature (provider default). These are exact request
+The current cross-family matrix requests Astra and Gemini 3.1 Pro Preview as
+frontier models and Luna as the smaller/faster comparison. OpenAI reasoning effort
+and Gemini thinking level are high, with an 8,192-token output cap, no tools and
+omitted temperature (provider default). These are exact request
 IDs, not immutable dated snapshots; returned model IDs and timestamps are logged.
-One provider/family cannot establish cross-family generality. Access is verified
+One diagnostic trial cannot establish stable capability differences. Access is verified
 by generation, not by appearing in a model catalog.
 
 ## Diagnostic pilot and empirical results
 
-Each of the three t01 pilot requests is saved in `transcripts/diagnostic/` with
+Each of the six t01 pilot requests is saved in `transcripts/diagnostic/` with
 its public request, timestamps, source hashes and sanitized API error. All returned
-HTTP 429 before producing SQL. A separately recorded 32-token setup probe returned
+HTTP 429 before producing SQL. The three initial attempts used the OpenAI fallback;
+the three replacement-key attempts used Astra, Gemini Pro, and Luna. Both new
+OpenAI requests reported `credit_balance_exhausted` / `insufficient_quota`; Gemini
+reported `RESOURCE_EXHAUSTED`. A separately recorded initial 32-token setup probe returned
 `credit_balance_exhausted` / `insufficient_quota`. It is not a benchmark attempt.
 Catalog evidence and the probe are in `results/model_discovery/`.
 
 There are **zero graded diagnostic outputs and zero formal trials**. We therefore
 report no model pass rates, variance, empirical costs or capability conclusions.
 The incomplete pilot does not validate live SQL extraction/grading end to end;
-that path currently has offline/mock verification only. Provider quota and Gemini
-authentication must be restored before completing it.
+that path currently has offline/mock verification only. Catalog authentication now
+works for both keys; OpenAI funded quota and Gemini generation quota/rate-limit
+availability must be restored before completing it.
 
 Formal design remains six tasks × three models × three trials = 54 attempts.
 Every attempt starts with fresh context; no automatic retries or overwritten
@@ -136,8 +142,9 @@ uv run python -m harness.replay path/to/transcript.jsonl
 ```
 
 Exact replay rejects changed source hashes or SQLite versions. The original
-diagnostic source snapshot is retained in `results/diagnostic/t01-pilot-code.zip`
-because development continued after the attempted pilot. Extract that snapshot
+initial diagnostic source snapshot is retained in `results/diagnostic/t01-pilot-code.zip`;
+the replacement-key source is in `results/diagnostic/t01-replacement-code.zip`.
+Development continued after those attempts. Extract the corresponding snapshot
 to reproduce the original source context; error-only attempts have no SQL to grade.
 
 ## Main Failure Mode & Hot Take

@@ -1,21 +1,21 @@
 {
-  "provider": "openai",
-  "endpoint": "https://api.openai.com/v1/responses",
+  "provider": "mixed",
+  "endpoints": {"openai": "https://api.openai.com/v1/responses", "gemini": "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"},
   "documentation_checked_on": "2026-11-08",
   "documentation": "https://developers.openai.com/api/docs/models",
   "account_access_verified": false,
   "catalog_access_verified": true,
   "catalog_evidence": "results/model_discovery/catalog.json",
-  "selection_note": "OpenAI fallback explicitly authorized while Gemini catalog returns HTTP 401. All 3 diagnostic generation requests returned HTTP 429; setup probe reports exhausted credits. Catalog visibility does not imply usable generation quota.",
-  "inference_evidence": "results/model_discovery/inference-probe.json",
-  "gemini_status": "Catalog HTTP 401; exact usable model IDs remain unverified. Native Gemini adapter implemented and tested with mocks, not live inference.",
+  "selection_note": "Replacement keys authenticate to both catalogs. Cross-family selection restored. Replacement-key pilot: both OpenAI requests returned exhausted-credit quota errors; Gemini Pro returned RESOURCE_EXHAUSTED. No generation access is established.",
+  "inference_evidence": "transcripts/diagnostic/",
+  "gemini_status": "Catalog authentication succeeded and lists gemini-3.1-pro-preview with generateContent. Its high-thinking pilot returned HTTP 429 RESOURCE_EXHAUSTED before producing an answer.",
   "models": [
     {"alias": "astra", "provider": "openai", "model": "gpt-6-astra", "role": "frontier", "reasoning_effort": "high", "max_output_tokens": 8192},
-    {"alias": "sol", "provider": "openai", "model": "gpt-6.1-sol", "role": "frontier", "reasoning_effort": "high", "max_output_tokens": 8192},
+    {"alias": "gemini-pro", "provider": "gemini", "model": "gemini-3.1-pro-preview", "role": "frontier", "thinking_config": {"thinkingLevel": "HIGH"}, "max_output_tokens": 8192},
     {"alias": "luna", "provider": "openai", "model": "gpt-6-luna", "role": "smaller_faster", "reasoning_effort": "high", "max_output_tokens": 8192}
   ],
   "temperature": null,
   "temperature_note": "Omitted from requests. Provider default; no unsupported sampling parameter is imposed.",
   "version_note": "These are the exact documented request IDs, not immutable dated snapshots. Persist response.model and run date; do not claim snapshot pinning.",
-  "comparison_limit": "One provider/model family; not a cross-family comparison. Performance ordering is an empirical hypothesis."
+  "comparison_limit": "Two providers/model families, but a tiny fixed suite and one pilot trial cannot establish general capability or stable performance ordering."
 }

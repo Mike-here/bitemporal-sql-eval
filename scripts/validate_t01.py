@@ -46,7 +46,7 @@ def main():
     # real local execution and the model trials that have not happened yet.
     lines = ["# t01 automated verification checkpoint", "",
              f"Python {platform.python_version()}; SQLite {sqlite3.sqlite_version}.", "",
-             "This validation makes no API requests. Three attempted diagnostic model calls returned access/quota errors, recorded separately. Michael Acheampong human-verified the t01 prompt and references on 2026-11-08; see reference/t01/review.md for scope.", "",
+             "This validation makes no API requests. Diagnostic access/quota errors are recorded separately. Michael Acheampong human-verified the t01 prompt and references on 2026-11-08; see reference/t01/review.md for scope.", "",
              f"- SQL reference: {len(task.cases)}/{len(task.cases)} fixtures match the independent Python oracle.",
              "- Manual golden expectations: 16/16 agree with both implementations.",
              "- Seeded histories: 24/24 agree.",

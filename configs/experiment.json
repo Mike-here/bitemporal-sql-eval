@@ -10,9 +10,9 @@
   "diagnostic_score": "Fraction of fixtures passed, not independent task observations.",
   "retries": "No automatic retries. Transport/API failures remain recorded and separate from model failures.",
   "human_review": "t01 prompt, SQL reference and Python oracle human-verified by Michael Acheampong on 2026-11-08. t02–t06 human reviews and empirical analysis remain pending.",
-  "diagnostic_attempts": 3,
+  "diagnostic_attempts": 6,
   "diagnostic_attempts_graded": 0,
-  "diagnostic_status": "OpenAI HTTP 429; separate setup probe reports credit_balance_exhausted / insufficient_quota. Gemini catalog HTTP 401. No model outputs available.",
+  "diagnostic_status": "Initial 3 OpenAI attempts failed on quota. With replacement keys both catalogs authenticate, but 2 OpenAI attempts returned credit_balance_exhausted / insufficient_quota and Gemini Pro returned HTTP 429 RESOURCE_EXHAUSTED. Zero model outputs.",
   "live_runs_completed": 0,
   "formal_attempts": 0
 }
