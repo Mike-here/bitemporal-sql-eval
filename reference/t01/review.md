@@ -1,8 +1,8 @@
 # Participant review: t01
 
-Status: PARTICIPANT REVIEW RECORDED on November 3, 2026.
+Status: HUMAN-VERIFIED by Michael Acheampong; confirmation recorded November 8, 2026.
 
-Reviewer: the submitting participant, who reports experience in SQL optimization
+Reviewer: Michael Acheampong, the submitting participant, who reports experience in SQL optimization
 and financial order-book state engines. The participant explicitly confirmed
 review of t01 in chat and discussed the prompt, SQL reference and Python oracle.
 

@@ -4,12 +4,12 @@ from dataclasses import dataclass
 import hashlib
 import json
 from pathlib import Path
+import importlib
+import re
 
 from graders.sql_outcome import grade_sql
-from reference.t01.oracle import solve as solve_t01
 
 ROOT = Path(__file__).resolve().parents[1]
-ORACLES = {"t01": solve_t01}
 
 
 @dataclass
@@ -33,8 +33,9 @@ class Task:
 
 
 def load_task(task_id: str) -> Task:
-    if task_id not in ORACLES:
-        raise ValueError(f"Task {task_id!r} is not implemented; currently available: {list(ORACLES)}")
+    if not re.fullmatch(r"t0[1-6]", task_id) or not (ROOT / "reference" / task_id / "oracle.py").is_file():
+        raise ValueError(f"Task {task_id!r} is not implemented.")
+    oracle = importlib.import_module(f"reference.{task_id}.oracle").solve
     directory = ROOT / "tasks" / task_id
     meta_path = directory / "metadata.json"
     metadata = json.loads(meta_path.read_text())
@@ -46,7 +47,8 @@ def load_task(task_id: str) -> Task:
         cases.extend(json.loads(path.read_text()))
     expected = {}
     for case in cases:
-        expected[case["name"]] = ORACLES[task_id](case["rows"], case["parameters"])
+        inputs = case["tables"] if "tables" in case else case["rows"]
+        expected[case["name"]] = oracle(inputs, case["parameters"])
         if "expected" in case:
             manual = sorted(tuple(row) for row in case["expected"])
             if sorted(expected[case["name"]]) != manual:

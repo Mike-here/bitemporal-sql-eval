@@ -12,13 +12,13 @@ order-book state engines. No employer/client data is used; all fixtures are synt
 
 - t01: full-state revisions, two inclusive cutoffs, out-of-order corrections.
 - t02: tombstone precedence; do not resurrect an earlier active state.
-- t03: late retroactive corrections and historical knowledge visibility.
+- t03: late retroactive corrections to amendment identity, including changed effective timestamps.
 - t04: revision/sequence tie-breaks and idempotent duplicate ingestion.
 - t05: tenant/book composite identity and cancellation-key scope.
-- t06: snapshot-before-aggregation with specified empty/zero groups.
+- t06: scoped amendment restatements, duplicates and withdrawal states before signed exposure aggregation; specified roster/empty/zero groups.
 
-Only t01 is implemented. Later tasks require their own explicit contracts and
-distinct practitioner interactions; they must not merely clone t01 fixtures.
+All six tasks are implemented. t01 has participant review; t02–t06 await review.
+The later tasks use distinct practitioner interactions rather than cloned fixtures.
 
 ## Prompt design decision from participant review (2026-11-08)
 
@@ -46,6 +46,8 @@ fraction of tasks passed on every trial. Provider errors and incomplete outputs
 must be separately visible; report completion rate and end-to-end success as well
 as success conditional on completion. Do not silently retry them.
 
-One OpenAI family supports a scale comparison, not a claim about all frontier
-families. General correctness of arbitrary SQL is not proven by finite fixtures.
+The current authorized fallback uses one OpenAI family, so it supports only a
+within-family scale comparison until Gemini authentication is restored. The
+three t01 diagnostic attempts returned API errors, not model answers, and are
+not scores. General correctness of arbitrary SQL is not proven by finite fixtures.
 SQLite execution is a query-only boundary, not a general native-code sandbox.

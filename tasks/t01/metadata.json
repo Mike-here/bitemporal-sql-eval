@@ -3,7 +3,8 @@
   "title": "Baseline bitemporal order-state reconstruction",
   "status": "participant_reviewed_pending_model_calibration",
   "participant_review": {
-    "status": "recorded",
+    "status": "human_verified",
+    "reviewer": "Michael Acheampong",
     "date": "2026-11-08",
     "scope": ["prompt", "SQL reference", "Python oracle"],
     "record": "reference/t01/review.md"

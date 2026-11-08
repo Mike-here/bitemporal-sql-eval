@@ -96,4 +96,19 @@ def test_api_failure_recorded_without_retry(task):
 
 def test_unimplemented_task_rejected_before_api_access():
     with pytest.raises(ValueError, match="not implemented"):
-        load_task("t02")
+        load_task("t99")
+
+
+def test_native_gemini_request_and_visible_sql_only(task, reference_sql):
+    selected = {"provider": "gemini", "model": "test-pro", "max_output_tokens": 8192,
+                "thinking_config": {"thinkingLevel": "HIGH"}}
+    def handle(request):
+        assert request.url.path.endswith("/models/test-pro:generateContent")
+        assert request.headers["x-goog-api-key"] == "fake-google-key"
+        assert "key=" not in str(request.url)
+        payload = json.loads(request.content)
+        assert payload["contents"][0]["parts"][0]["text"] == task.model_input
+        return httpx.Response(200, json={"modelVersion": "test-pro", "candidates": [
+            {"finishReason": "STOP", "content": {"parts": [{"thought": True, "text": "hidden thought"}, {"text": reference_sql}]}}]})
+    _, received = generate(selected, task.model_input, "fake-google-key", transport=httpx.MockTransport(handle))
+    assert output_text(received) == reference_sql

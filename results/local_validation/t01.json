@@ -1,6 +1,6 @@
 {
   "kind": "local_grader_validation_NOT_model_results",
-  "created_at": "2026-11-08T22:04:55.223564+00:00",
+  "created_at": "2026-11-08T22:40:36.337695+00:00",
   "python": "3.13.9",
   "sqlite": "3.51.0",
   "fixtures": 40,
@@ -35593,30 +35593,32 @@
     }
   },
   "artifact_hashes": {
-    "tasks/t01/metadata.json": "339c5ad750b8430b6b6f2bc594c0d187d902652d284079d5d8888ca49c490b0b",
+    "tasks/t01/metadata.json": "ee7218d6dbfe1f4d3185a6756542ff6f299c2749aa462c01f71f2bc7c01f35f4",
     "tasks/t01/prompt.md": "fc8dcbeb2f1535085a9a36bf1526152e030f9c1333028e83b5ad9fbddfc43642",
     "tasks/t01/schema.sql": "e2ab1f5a971f08081aa198720cc0c7ab55f65de3b4a548a84906c11a99a38793",
     "tasks/t01/fixtures/hand_cases.json": "44697c4342ff704af31048625707fb4aa5f06878a61d80932ece7a65afe015aa",
     "tasks/t01/fixtures/generated_cases.json": "5f9abc9cd772618c46059a4739076453a77888e4ccac30053b64ceab8fc5e1c1",
     "graders/__init__.py": "9056f5127af1cc738a03df4a1dfd939fac6859c7ab92caea26a44a378a048333",
     "graders/normalize.py": "cd139c464de09a058e7759150130dcd3b354a68f605ef0e4cbd9a835acc9db61",
-    "graders/sql_outcome.py": "760f3feae9988e80057d112a9eee8a0f23c0def792979d511edae6f57dd584f8",
+    "graders/sql_outcome.py": "b5e94d0ea7f6a90b706aac56a6b9c32e40686b3fa1a74885683267a935ef4b26",
     "harness/__init__.py": "abccfab8bf5d2e55b2954f7ff89aa823fbe2e8ea83a242173c6c0f6ad2d6df25",
-    "harness/providers.py": "2de9e8cf9b97e21f1eb2cfc86006928e3e84ccc861f50f3cad0cd3e3d6c22f60",
+    "harness/credentials.py": "4e12e683055abcee3a6a9e40ee18849b6cedda87cb0bc7ab10d8a3aefa2f081d",
+    "harness/providers.py": "b1f7ebe3c6f7f05a25972f09dac6a30d5cecfc58b19d3737efa5469be57967e2",
     "harness/replay.py": "b138976d919d709e2ad8ea78b65266628b6c35887206efddb11b055c79ede6dc",
-    "harness/run.py": "692fa6ad9f3da0fb982b318eb55649e791fdf2e7c94827973df8eef228e716f0",
-    "harness/tasks.py": "82ad6e551c7af5b6fd90f884d1b1ac5516c13ad49eecd79cff4d9922e7681f36",
+    "harness/run.py": "281d566fd08d349700c98e779e8d9b3da23e8f4fbe5c229e04aa5ccab77ec658",
+    "harness/tasks.py": "3ad1a72614204385d987ee2e3d1157413695599e19214b650aa45ab9dc1938ed",
     "reference/t01/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "reference/t01/oracle.py": "cd65adf4e9cee2df7935ed29d8fa48ea34f0ba3370182467749de39941b65231",
     "reference/t01/solution.sql": "253aa906cd95bc0f9a52aef03d911974479e8b76dd6063134cba582fa09ee6d1",
-    "configs/models.json": "22efb4ca93c5f55c2824f90a40aab01338e2f986a453c0c01e4d9efc23b1a9bc",
-    "configs/experiment.json": "01c6cf9497b2abb38752f33ca818d8f31cb67559b353ffe99bca78dd3035a9cb",
+    "configs/models.json": "2e895df0d9af44dfab1e02a933804d5ebfe4377978432c7554d3bde0678496e5",
+    "configs/experiment.json": "3d4df608f74256e84b1107fa4ffdd4fd31523c9e6b90576199c6ad178050535b",
     "pyproject.toml": "ffd5d3c7f1930aef7c8b7786a39c0f9bdcae7c6f78670b510cac31ac2a7f0927",
     ".python-version": "02e735b3dfe1c32833eb550b7ff8ffa17f5f2bc3fa1e7bae61a8f5a3883ce398",
     "uv.lock": "dbc9564f9e47acd819f90a51d73f9b3359c58c72f546f0351c502a2f207f9477"
   },
   "human_review": {
-    "status": "recorded",
+    "status": "human_verified",
+    "reviewer": "Michael Acheampong",
     "date": "2026-11-08",
     "scope": [
       "prompt",
@@ -35625,9 +35627,9 @@
     ],
     "record": "reference/t01/review.md"
   },
-  "live_model_attempts": 0,
+  "note": "Local verification only; live diagnostic access errors are logged separately.",
   "unit_tests": {
-    "tests": 111,
+    "tests": 128,
     "failures": 0,
     "errors": 0,
     "skipped": 0

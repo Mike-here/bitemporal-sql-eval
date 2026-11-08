@@ -1,123 +1,172 @@
-# As-of Ledger Eval — development checkpoint
+# As-of Ledger Eval — six-task development checkpoint
 
-This eval measures whether models can reconstruct historical order state using
-separate business-time and knowledge-time cutoffs. Late arrivals and retroactive
-corrections make plausible SQL silently choose the wrong version, affecting
-reconciliation and historical order-book reports.
+This eval measures SQL reconstruction of historical order state with separate
+business-time and knowledge-time cutoffs. Late arrivals, restated amendments,
+withdrawal states and composite identity can change the answer while plausible
+queries still produce convincing reports. Reconciliation and financial order-book
+reporting depend on getting these interactions right.
 
-**Status:** t01 implemented; t02–t06 planned. No live model trials have been run.
-t01 participant review is recorded; further task reviews, empirical findings,
-submission description and video are pending.
-This checkpoint is not the final hackathon submission.
+**Status:** all six tasks implemented and verified offline. Michael Acheampong
+human-verified t01's prompt, SQL reference and Python oracle. t02–t06 await his
+review. Three live t01 diagnostic attempts returned quota errors without producing
+answers. No empirical model pass rates or frontier capability findings exist yet.
+This is a development checkpoint, not the final hackathon submission.
 
-## Domain and expertise
+## Domain, expertise and task overview
 
-The participant reports strong SQL optimization and financial order-book state
-engine experience. All task data is newly generated synthetic data. The participant
-reviewed t01's prompt, SQL reference and Python oracle on November 8, 2026;
-see `reference/t01/review.md` for the scope and remaining verification items.
+Michael Acheampong reports strong SQL schema/query optimization and financial
+order-book state engine experience. All task data is newly generated synthetic
+data; no employer/client records or existing benchmark tasks are included.
 
-## Setup and offline verification
+- **t01 — baseline:** full replacement versions, two inclusive cutoffs, out-of-order
+  corrections. Its deliberately explicit recipe provides calibration.
+- **t02 — withdrawals:** a governing DELETE removes an order; older active states
+  must not reappear. Later UPSERTs can reopen it.
+- **t03 — restated amendments:** a correction changes one amendment's meaning,
+  including effective time. Obsolete revisions are not separate business events.
+- **t04 — source precedence:** equal clocks require integer revision/sequence
+  precedence, while retry deliveries have only one business effect.
+- **t05 — scoped cancellation:** order identity and cancellation groups belong to
+  a full tenant/book scope; current cancellation keys can differ from old keys.
+- **t06 — net exposure:** scoped, restated and deduplicated order state becomes
+  signed quantity/notional totals. The reporting roster includes empty tenants;
+  zero net quantity does not imply zero active orders.
 
-Requirements: Python 3.13, uv and Git. SQLite >= 3.37 (STRICT support is not required;
-window functions and SQLite authorizer/limit APIs are used). The tested interpreter
-and SQLite versions are recorded in the checkpoint report. Lock dependencies:
+t02–t06 state business semantics/invariants without prescribing a SQL execution
+recipe. Every graded type, identity, precedence, cutoff, empty-result and numeric
+rule is in that task's prompt/schema. See `docs/task_design.md` and each task's
+review record. Difficulty and a useful performance spread remain hypotheses until
+measured; the suite has not been selected for particular model failures.
+
+## Setup and offline reproduction
+
+Requirements: Python 3.13, uv, SQLite >=3.37. Dependency versions/hashes are locked
+in `uv.lock`; the verified local interpreter is Python 3.13.9 with SQLite 3.51.0.
+From a clean extraction:
 
 ```bash
 uv sync --locked
 uv run pytest
-uv run python scripts/validate_t01.py
-uv run python -m harness.run --task t01 --sql reference/t01/solution.sql --output work/reference-check.json
+uv run python scripts/validate_suite.py
+uv run python -m harness.run --task t06 --sql reference/t06/solution.sql --output work/t06-reference.json
 ```
 
-The output file must not already exist. Offline verification requires no API key
-and incurs no model cost. Tests exercise manual goldens, seeded histories,
-alternative SQL formulations, realistic semantic mutations, formatting, exact
-integer comparisons and query execution restrictions.
+The requested output report must not already exist. Tests/verification are offline
+and incur no model cost. They compare independent Python datetime/state oracles
+with the reference SQL and different correct SQL formulations, check explicit
+goldens and seeded histories, and reject targeted semantic mutations. Source
+hashes and mutation examples are in `results/local_validation/suite.json`.
+The suite covers 195 fixtures, including 91 explicitly specified golden outcomes,
+and rejects 64 semantic mutants. These are not 195 independent model tasks.
 
-## t01 contract and grading
+Fixture regeneration scripts are provided in `scripts/`; do not regenerate or
+alter task artifacts after a formal experiment is frozen. Independent references
+and passing finite tests do not prove universal equivalence of arbitrary SQL.
+Human audit remains required, especially for the five newly implemented tasks.
 
-Each version is a complete replacement state. Apply both inclusive cutoffs to
-form the eligible relation; then select each order's greatest effective timestamp,
-breaking an effective-time tie by greatest recorded timestamp. Zero quantity is
-retained. Storage IDs do not order state. No tombstones/tenants exist in t01.
+## Outcome grading and isolation
 
-`tasks/t01/prompt.md` plus `schema.sql` is exactly the public model input. References,
-fixtures and graders never enter the request. The submitted artifact is SQL; the
-grader checks the result, not the SQL text or construction process. Row order and
-alias case are ignored; duplicate rows, identifier case, exact values and column
-order are preserved. Integers are never normalized through float. A task passes
-only if every fixture passes; fixture fraction is a diagnostic, not partial primary
-credit or independent observations.
+The model sees only a task's `prompt.md` plus `schema.sql`. Fixtures, expected
+outcomes, references and graders never enter API input. Each candidate SELECT
+runs on a fresh in-memory SQLite database per fixture. Public-table reads are
+allowed; writes, attached files, extensions and metadata inspection are denied.
+Resource bounds are stated in the prompt. This is a SQLite query boundary, not
+a general-purpose native-code sandbox.
 
-There are 16 manually specified golden fixtures and 24 deterministic seeded
-histories. The independent oracle replays Python datetime-ordered events; the SQL
-reference ranks eligible rows with a window function. Manual golden expectations
-are supplied separately from both implementations. Finite fixture validation
-does not prove arbitrary SQL equivalence or universal absence of grader errors.
+The grader compares complete result multisets, never a prescribed SQL method.
+Alias case and row order are ignored; duplicate multiplicity, text identity,
+column order and exact numeric values are preserved. Integer expectations are
+never converted to floats. Each task attempt receives one binary primary score:
+all fixtures must pass. Fixture fraction is diagnostic, not extra independent
+observations or partial primary credit. Bad fixture/reference configuration raises
+an infrastructure error rather than silently scoring a model failure.
 
-## Model configuration and live runs
+## Credentials and live providers
 
-`configs/models.json` requests `gpt-6-astra`, `gpt-6.1-sol`, and `gpt-6-luna`, all
-with high reasoning effort and an 8,192-token output cap. Temperature is omitted.
-The [official model catalog](https://developers.openai.com/api/docs/models) and
-individual model pages were checked on 2026-11-08. Account access is unverified.
-These IDs are documented request IDs, not immutable dated snapshots. The harness
-records the returned model ID and raw response. This is a within-family comparison.
-
-Set `OPENAI_API_KEY` in your shell (never commit its value). `.env.example` is a
-template only; the runner does not auto-load it. A deliberate live command incurs
-API usage; configure budget/quota before running:
+Put `OPENAI_API_KEY` and optionally `GEMINI_API_KEY` in a local `.env`, or set them
+in the environment. The root `.env` takes precedence. The safe loader recognizes
+only these names and never executes shell interpolation. Do not share actual
+values. `.env` is ignored by Git and excluded from the source allowlist/ZIP.
 
 ```bash
-uv run python -m harness.run --task t01 --model astra --trials 3 --output transcripts/t01-astra-pilot.jsonl
-uv run python -m harness.replay transcripts/t01-astra-pilot.jsonl
+uv run python scripts/discover_models.py
+uv run python -m harness.run --task t01 --model astra --trials 1 --phase diagnostic --output transcripts/diagnostic/new-t01-astra.jsonl
 ```
 
-Every trial is a fresh Responses request with no tools or conversation state.
-There are no automatic retries. JSONL records contain the public request, response,
-usage, timestamps, runtime, environment, source hashes and deterministic grades.
-API errors and incomplete responses remain separate from semantic failures.
-Output files are created exclusively and cannot silently overwrite earlier runs.
-Saved completed outputs can be regraded offline; exact replay rejects changed hashes.
-It also rejects a changed SQLite version rather than silently treating it as an
-exact replay on the recorded runtime.
+These deliberately selected commands contact providers; generation incurs usage.
+Live catalogs were checked on November 8, 2026. OpenAI listed `gpt-6-astra`,
+`gpt-6.1-sol`, and `gpt-6-luna`. Gemini's native `/v1beta/models` returned HTTP 401,
+so no usable Gemini ID has been verified. Michael authorized the OpenAI fallback
+while resolving Gemini credentials. The native Gemini adapter supports explicit
+thinking configuration and has mocked tests, but no live Gemini inference.
 
-## Results, cost and runtime
+The current matrix requests Astra and Sol as frontier models and Luna as the
+smaller/faster comparison, all with high reasoning effort, an 8,192-token output
+cap, no tools, and omitted temperature (provider default). These are exact request
+IDs, not immutable dated snapshots; returned model IDs and timestamps are logged.
+One provider/family cannot establish cross-family generality. Access is verified
+by generation, not by appearing in a model catalog.
 
-No empirical model results or live costs yet. Planned formal design is six tasks,
-three models and three trials per task: 54 attempts. Development/pilot runs must be
-labeled separately. Local reference checks are not model performance results.
-Aggregate reporting is deferred until real runs exist. Exact generations may vary
-on live reruns; saved-output grading is deterministic on the recorded runtime.
+## Diagnostic pilot and empirical results
+
+Each of the three t01 pilot requests is saved in `transcripts/diagnostic/` with
+its public request, timestamps, source hashes and sanitized API error. All returned
+HTTP 429 before producing SQL. A separately recorded 32-token setup probe returned
+`credit_balance_exhausted` / `insufficient_quota`. It is not a benchmark attempt.
+Catalog evidence and the probe are in `results/model_discovery/`.
+
+There are **zero graded diagnostic outputs and zero formal trials**. We therefore
+report no model pass rates, variance, empirical costs or capability conclusions.
+The incomplete pilot does not validate live SQL extraction/grading end to end;
+that path currently has offline/mock verification only. Provider quota and Gemini
+authentication must be restored before completing it.
+
+Formal design remains six tasks × three models × three trials = 54 attempts.
+Every attempt starts with fresh context; no automatic retries or overwritten
+logs. API failures, blocked responses and incomplete generations remain separate
+from incorrect task outcomes. After freezing, preserve all attempts and rerun
+affected comparisons if a task/grader changes. Report completion rate, per-task
+success counts, overall pass rates and all-trials reliability with small-sample
+limits. Record actual usage/cost/runtime when successful runs exist.
+
+Saved completed outputs can be regraded with:
+
+```bash
+uv run python -m harness.replay path/to/transcript.jsonl
+```
+
+Exact replay rejects changed source hashes or SQLite versions. The original
+diagnostic source snapshot is retained in `results/diagnostic/t01-pilot-code.zip`
+because development continued after the attempted pilot. Extract that snapshot
+to reproduce the original source context; error-only attempts have no SQL to grade.
 
 ## Main Failure Mode & Hot Take
 
-Hypothesis only: models may confuse "latest known arrival" with "latest effective
-state among visible records," or rank before restricting visibility. An empirical
-hot take will be written only after reviewing actual failure transcripts.
+Hypothesis: models may confuse latest arrival with current effective state,
+resurrect withdrawals, retain obsolete amendment meanings, leak composite scope
+or aggregate histories rather than reconstructed orders. An empirical hot take
+must await successful runs and reviewed failure transcripts. Access/quota errors
+are infrastructure findings, not evidence of a reasoning limitation.
 
-## Prior work, sources and AI Use Disclosure
+## Prior work, provenance and AI Use Disclosure
 
-Task contracts, fixtures, references and harness were created for this event. No
-existing benchmark tasks or confidential records are included. Standard bitemporal
-concepts and [SQLite window functions](https://www.sqlite.org/windowfunctions.html)
-are prior technical foundations. API integration follows the
-[OpenAI text generation documentation](https://developers.openai.com/api/docs/guides/text).
-Python, SQLite, pytest and httpx are third-party dependencies with their own licences.
+Tasks, synthetic fixtures, references and harness were developed for this event.
+Standard bitemporal concepts and [SQLite window functions](https://www.sqlite.org/windowfunctions.html)
+are prior technical foundations. API adapters follow the
+[OpenAI Responses/reasoning documentation](https://developers.openai.com/api/docs/guides/reasoning)
+and [native Gemini generateContent API](https://ai.google.dev/api/generate-content).
+Python, SQLite, pytest and httpx retain their respective third-party licences.
 
-Codex drafted the code, task language, synthetic fixtures, SQL reference, Python
-oracle and initial documentation. Automated cross-checks validate the two independent
-implementations against explicit goldens and test deliberately wrong queries.
-Participant review of t01's prompt, SQL reference and Python oracle was recorded
-on November 8, 2026. The review retained the intentionally explicit t01 baseline
-and directed later prompts to express business semantics without giving a SQL
-execution recipe. Ascending oracle replay was checked: the last per-order
-assignment retains the newest state. Further review scope is tracked explicitly
-in `reference/t01/review.md`.
+Codex drafted the task language, synthetic fixtures, SQL solutions, Python oracles,
+graders, API adapters, tests and documentation. Michael Acheampong human-verified
+the t01 prompt, SQL reference and Python oracle on November 8, 2026. Further
+review scope is explicit in `reference/t01/review.md`; t02–t06 reviews are pending.
+Automated verification is never represented as human expert verification.
 
-## Submission materials still required
+## Remaining submission materials
 
-Remaining human verification; five further tasks; frozen multi-trial model results and failure
-analysis; approximate live cost/runtime; final short description; a <=5 minute
-video link that opens without permission; final clean-environment ZIP verification.
+Complete the live pilot; human-review t02–t06; freeze and execute the 54-run matrix;
+analyze real transcripts; document measured cost/runtime and final findings;
+write the short submission description; record a <=5-minute video and verify its
+public link; then reproduce and verify the final <50 MB ZIP. The README must carry
+the final video link and short description before submission.

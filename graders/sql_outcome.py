@@ -7,6 +7,8 @@ No candidate Python, shell, extensions, filesystem DBs or tools are executed.
 from dataclasses import asdict, dataclass
 import sqlite3
 import time
+import re
+import math
 from typing import Mapping, Sequence
 
 from graders.normalize import OutputContractError, extract_sql, normalize_rows
@@ -38,14 +40,25 @@ class GradeReport:
     cases: list[CaseResult]
 
     def to_dict(self) -> dict:
-        return asdict(self)
+        # Invalid candidate result types still need a durable JSON failure log.
+        def serializable(value):
+            if isinstance(value, bytes):
+                return {"sqlite_blob_hex": value.hex()}
+            if isinstance(value, float) and not math.isfinite(value):
+                return {"non_finite_number": str(value)}
+            if isinstance(value, (list, tuple)):
+                return [serializable(item) for item in value]
+            if isinstance(value, dict):
+                return {key: serializable(item) for key, item in value.items()}
+            return value
+        return serializable(asdict(self))
 
 
-def _authorize(action, arg1, arg2, database, source):
+def _authorize(action, arg1, arg2, database, source, *, public_tables):
     if action in (sqlite3.SQLITE_SELECT, sqlite3.SQLITE_RECURSIVE):
         return sqlite3.SQLITE_OK
     if action == sqlite3.SQLITE_READ:
-        return (sqlite3.SQLITE_OK if database == "main" and arg1 == "order_versions"
+        return (sqlite3.SQLITE_OK if database == "main" and arg1 in public_tables
                 else sqlite3.SQLITE_DENY)
     if action == sqlite3.SQLITE_FUNCTION:
         # Core functions have no filesystem access; extensions are never loaded.
@@ -61,13 +74,22 @@ def execute_query(sql: str, schema: str, case: Mapping) -> tuple[list[str], list
     connection = sqlite3.connect(":memory:")
     try:
         connection.executescript(schema)
-        # Named insertion keeps fixture JSON key order irrelevant.
-        connection.executemany(
-            "INSERT INTO order_versions "
-            "(version_id,order_id,effective_at,recorded_at,symbol,side,open_qty,limit_price_cents) "
-            "VALUES (:version_id,:order_id,:effective_at,:recorded_at,:symbol,:side,:open_qty,:limit_price_cents)",
-            case["rows"],
-        )
+        # Introspect only the trusted schema, before installing the authorizer.
+        # Candidate queries can read these public tables, not metadata or files.
+        public_tables = {row[0] for row in connection.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'")}
+        tables = case["tables"] if "tables" in case else {"order_versions": case["rows"]}
+        if not set(tables) <= public_tables:
+            raise ValueError("Fixture refers to a table outside the public schema.")
+        for table, records in tables.items():
+            if not re.fullmatch(r"[A-Za-z_][A-Za-z_0-9]*", table):
+                raise ValueError("Invalid trusted table name.")
+            columns = [column[1] for column in connection.execute(f'PRAGMA table_info("{table}")')]
+            if not all(re.fullmatch(r"[A-Za-z_][A-Za-z_0-9]*", name) for name in columns):
+                raise ValueError("Invalid trusted column name.")
+            names = ",".join(f'"{name}"' for name in columns)
+            parameters = ",".join(f":{name}" for name in columns)
+            connection.executemany(f'INSERT INTO "{table}" ({names}) VALUES ({parameters})', records)
         connection.commit()
         connection.execute("PRAGMA query_only = ON")
         connection.setlimit(sqlite3.SQLITE_LIMIT_LENGTH, 1_000_000)
@@ -75,7 +97,7 @@ def execute_query(sql: str, schema: str, case: Mapping) -> tuple[list[str], list
         connection.setlimit(sqlite3.SQLITE_LIMIT_COLUMN, 100)
         connection.setlimit(sqlite3.SQLITE_LIMIT_EXPR_DEPTH, 100)
         connection.setlimit(sqlite3.SQLITE_LIMIT_COMPOUND_SELECT, 50)
-        connection.set_authorizer(_authorize)
+        connection.set_authorizer(lambda *args: _authorize(*args, public_tables=public_tables))
         started = time.monotonic()
         steps = 0
 

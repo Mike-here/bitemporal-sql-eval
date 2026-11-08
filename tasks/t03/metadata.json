@@ -1,0 +1,23 @@
+{
+  "id": "t03",
+  "title": "Historical restatement of amendment identity",
+  "status": "implemented_pending_human_review",
+  "output_columns": [
+    "order_id",
+    "symbol",
+    "side",
+    "open_qty",
+    "limit_price_cents"
+  ],
+  "output_types": [
+    "text",
+    "text",
+    "text",
+    "integer",
+    "integer"
+  ],
+  "fixture_files": [
+    "fixtures/cases.json"
+  ],
+  "failure_hypothesis": "Models may treat superseded amendment revisions as independent effective events or let later knowledge leak into earlier reports."
+}

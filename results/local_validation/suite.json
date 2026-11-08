@@ -1,0 +1,1735 @@
+{
+  "kind": "offline_suite_validation_not_model_scores",
+  "created_at": "2026-11-08T22:40:36.411983+00:00",
+  "sqlite": "3.51.0",
+  "tasks": {
+    "t01": {
+      "fixtures": 40,
+      "explicit_goldens": 16,
+      "reference_passes": true,
+      "accepted_alternatives": [
+        "correlated_not_exists",
+        "grouped_joins",
+        "first_value"
+      ],
+      "mutations": {
+        "missing_recorded_cutoff": {
+          "rejected": true,
+          "failed_fixtures": 24,
+          "example_fixture": "exclude_future_recorded",
+          "expected": [
+            [
+              "A",
+              "XYZ",
+              "BUY",
+              10,
+              12345
+            ]
+          ],
+          "actual": [
+            [
+              "A",
+              "XYZ",
+              "BUY",
+              99,
+              12345
+            ]
+          ],
+          "candidate_sql": "\nWITH ranked AS (\n SELECT *, ROW_NUMBER() OVER (PARTITION BY order_id ORDER BY effective_at DESC, recorded_at DESC) AS rn\n FROM order_versions WHERE effective_at <= :effective_cutoff\n)\nSELECT order_id, symbol, side, open_qty, limit_price_cents FROM ranked WHERE rn = 1 ;\n"
+        },
+        "missing_effective_cutoff": {
+          "rejected": true,
+          "failed_fixtures": 18,
+          "example_fixture": "exclude_future_effective",
+          "expected": [
+            [
+              "A",
+              "XYZ",
+              "BUY",
+              10,
+              12345
+            ]
+          ],
+          "actual": [
+            [
+              "A",
+              "XYZ",
+              "BUY",
+              99,
+              12345
+            ]
+          ],
+          "candidate_sql": "\nWITH ranked AS (\n SELECT *, ROW_NUMBER() OVER (PARTITION BY order_id ORDER BY effective_at DESC, recorded_at DESC) AS rn\n FROM order_versions WHERE recorded_at <= :recorded_cutoff\n)\nSELECT order_id, symbol, side, open_qty, limit_price_cents FROM ranked WHERE rn = 1 ;\n"
+        },
+        "swapped_cutoffs": {
+          "rejected": true,
+          "failed_fixtures": 20,
+          "example_fixture": "inclusive_both_boundaries",
+          "expected": [
+            [
+              "A",
+              "XYZ",
+              "BUY",
+              17,
+              12345
+            ]
+          ],
+          "actual": [],
+          "candidate_sql": "\nWITH ranked AS (\n SELECT *, ROW_NUMBER() OVER (PARTITION BY order_id ORDER BY effective_at DESC, recorded_at DESC) AS rn\n FROM order_versions WHERE effective_at <= :recorded_cutoff AND recorded_at <= :effective_cutoff\n)\nSELECT order_id, symbol, side, open_qty, limit_price_cents FROM ranked WHERE rn = 1 ;\n"
+        },
+        "either_cutoff_instead_of_both": {
+          "rejected": true,
+          "failed_fixtures": 29,
+          "example_fixture": "exclude_future_effective",
+          "expected": [
+            [
+              "A",
+              "XYZ",
+              "BUY",
+              10,
+              12345
+            ]
+          ],
+          "actual": [
+            [
+              "A",
+              "XYZ",
+              "BUY",
+              99,
+              12345
+            ]
+          ],
+          "candidate_sql": "\nWITH ranked AS (\n SELECT *, ROW_NUMBER() OVER (PARTITION BY order_id ORDER BY effective_at DESC, recorded_at DESC) AS rn\n FROM order_versions WHERE effective_at <= :effective_cutoff OR recorded_at <= :recorded_cutoff\n)\nSELECT order_id, symbol, side, open_qty, limit_price_cents FROM ranked WHERE rn = 1 ;\n"
+        },
+        "recorded_time_first": {
+          "rejected": true,
+          "failed_fixtures": 14,
+          "example_fixture": "effective_precedes_recorded",
+          "expected": [
+            [
+              "A",
+              "XYZ",
+              "BUY",
+              20,
+              12345
+            ]
+          ],
+          "actual": [
+            [
+              "A",
+              "XYZ",
+              "BUY",
+              88,
+              12345
+            ]
+          ],
+          "candidate_sql": "\nWITH ranked AS (\n SELECT *, ROW_NUMBER() OVER (PARTITION BY order_id ORDER BY recorded_at DESC, effective_at DESC) AS rn\n FROM order_versions WHERE effective_at <= :effective_cutoff AND recorded_at <= :recorded_cutoff\n)\nSELECT order_id, symbol, side, open_qty, limit_price_cents FROM ranked WHERE rn = 1 ;\n"
+        },
+        "earliest_effective": {
+          "rejected": true,
+          "failed_fixtures": 18,
+          "example_fixture": "late_correction_same_effective",
+          "expected": [
+            [
+              "A",
+              "XYZ",
+              "BUY",
+              12,
+              12345
+            ]
+          ],
+          "actual": [
+            [
+              "A",
+              "XYZ",
+              "BUY",
+              10,
+              12345
+            ]
+          ],
+          "candidate_sql": "\nWITH ranked AS (\n SELECT *, ROW_NUMBER() OVER (PARTITION BY order_id ORDER BY effective_at ASC, recorded_at DESC) AS rn\n FROM order_versions WHERE effective_at <= :effective_cutoff AND recorded_at <= :recorded_cutoff\n)\nSELECT order_id, symbol, side, open_qty, limit_price_cents FROM ranked WHERE rn = 1 ;\n"
+        },
+        "earliest_correction": {
+          "rejected": true,
+          "failed_fixtures": 13,
+          "example_fixture": "same_effective_latest_correction",
+          "expected": [
+            [
+              "A",
+              "XYZ",
+              "BUY",
+              25,
+              12345
+            ]
+          ],
+          "actual": [
+            [
+              "A",
+              "XYZ",
+              "BUY",
+              20,
+              12345
+            ]
+          ],
+          "candidate_sql": "\nWITH ranked AS (\n SELECT *, ROW_NUMBER() OVER (PARTITION BY order_id ORDER BY effective_at DESC, recorded_at ASC) AS rn\n FROM order_versions WHERE effective_at <= :effective_cutoff AND recorded_at <= :recorded_cutoff\n)\nSELECT order_id, symbol, side, open_qty, limit_price_cents FROM ranked WHERE rn = 1 ;\n"
+        },
+        "storage_id_precedence": {
+          "rejected": true,
+          "failed_fixtures": 15,
+          "example_fixture": "effective_precedes_recorded",
+          "expected": [
+            [
+              "A",
+              "XYZ",
+              "BUY",
+              20,
+              12345
+            ]
+          ],
+          "actual": [
+            [
+              "A",
+              "XYZ",
+              "BUY",
+              10,
+              12345
+            ]
+          ],
+          "candidate_sql": "\nWITH ranked AS (\n SELECT *, ROW_NUMBER() OVER (PARTITION BY order_id ORDER BY version_id DESC) AS rn\n FROM order_versions WHERE effective_at <= :effective_cutoff AND recorded_at <= :recorded_cutoff\n)\nSELECT order_id, symbol, side, open_qty, limit_price_cents FROM ranked WHERE rn = 1 ;\n"
+        },
+        "exclude_exact_effective_boundary": {
+          "rejected": true,
+          "failed_fixtures": 13,
+          "example_fixture": "inclusive_both_boundaries",
+          "expected": [
+            [
+              "A",
+              "XYZ",
+              "BUY",
+              17,
+              12345
+            ]
+          ],
+          "actual": [],
+          "candidate_sql": "\nWITH ranked AS (\n SELECT *, ROW_NUMBER() OVER (PARTITION BY order_id ORDER BY effective_at DESC, recorded_at DESC) AS rn\n FROM order_versions WHERE effective_at < :effective_cutoff AND recorded_at <= :recorded_cutoff\n)\nSELECT order_id, symbol, side, open_qty, limit_price_cents FROM ranked WHERE rn = 1 ;\n"
+        },
+        "exclude_exact_recorded_boundary": {
+          "rejected": true,
+          "failed_fixtures": 1,
+          "example_fixture": "inclusive_both_boundaries",
+          "expected": [
+            [
+              "A",
+              "XYZ",
+              "BUY",
+              17,
+              12345
+            ]
+          ],
+          "actual": [],
+          "candidate_sql": "\nWITH ranked AS (\n SELECT *, ROW_NUMBER() OVER (PARTITION BY order_id ORDER BY effective_at DESC, recorded_at DESC) AS rn\n FROM order_versions WHERE effective_at <= :effective_cutoff AND recorded_at < :recorded_cutoff\n)\nSELECT order_id, symbol, side, open_qty, limit_price_cents FROM ranked WHERE rn = 1 ;\n"
+        },
+        "drop_zero_quantity": {
+          "rejected": true,
+          "failed_fixtures": 2,
+          "example_fixture": "keep_zero_quantity",
+          "expected": [
+            [
+              "A",
+              "XYZ",
+              "BUY",
+              0,
+              0
+            ]
+          ],
+          "actual": [],
+          "candidate_sql": "\nWITH ranked AS (\n SELECT *, ROW_NUMBER() OVER (PARTITION BY order_id ORDER BY effective_at DESC, recorded_at DESC) AS rn\n FROM order_versions WHERE effective_at <= :effective_cutoff AND recorded_at <= :recorded_cutoff\n)\nSELECT order_id, symbol, side, open_qty, limit_price_cents FROM ranked WHERE rn = 1 AND open_qty > 0;\n"
+        },
+        "partition_by_symbol": {
+          "rejected": true,
+          "failed_fixtures": 2,
+          "example_fixture": "preserve_whole_winning_row",
+          "expected": [
+            [
+              "A",
+              "NEW",
+              "BUY",
+              4,
+              11000
+            ]
+          ],
+          "actual": [
+            [
+              "A",
+              "NEW",
+              "BUY",
+              4,
+              11000
+            ],
+            [
+              "A",
+              "OLD",
+              "SELL",
+              90,
+              99999
+            ]
+          ],
+          "candidate_sql": "\nWITH ranked AS (\n SELECT *, ROW_NUMBER() OVER (PARTITION BY symbol ORDER BY effective_at DESC, recorded_at DESC) AS rn\n FROM order_versions WHERE effective_at <= :effective_cutoff AND recorded_at <= :recorded_cutoff\n)\nSELECT order_id, symbol, side, open_qty, limit_price_cents FROM ranked WHERE rn = 1 ;\n"
+        },
+        "rank_before_eligibility": {
+          "rejected": true,
+          "failed_fixtures": 20,
+          "example_fixture": "exclude_future_effective",
+          "expected": [
+            [
+              "A",
+              "XYZ",
+              "BUY",
+              10,
+              12345
+            ]
+          ],
+          "actual": [],
+          "candidate_sql": "\n      WITH ranked AS (\n        SELECT *, ROW_NUMBER() OVER (PARTITION BY order_id ORDER BY effective_at DESC, recorded_at DESC) AS rn\n        FROM order_versions\n      ) SELECT order_id, symbol, side, open_qty, limit_price_cents FROM ranked WHERE rn = 1 AND effective_at <= :effective_cutoff AND recorded_at <= :recorded_cutoff;\n    "
+        },
+        "return_all_eligible": {
+          "rejected": true,
+          "failed_fixtures": 20,
+          "example_fixture": "late_correction_same_effective",
+          "expected": [
+            [
+              "A",
+              "XYZ",
+              "BUY",
+              12,
+              12345
+            ]
+          ],
+          "actual": [
+            [
+              "A",
+              "XYZ",
+              "BUY",
+              10,
+              12345
+            ],
+            [
+              "A",
+              "XYZ",
+              "BUY",
+              12,
+              12345
+            ]
+          ],
+          "candidate_sql": "SELECT order_id, symbol, side, open_qty, limit_price_cents FROM order_versions WHERE effective_at <= :effective_cutoff AND recorded_at <= :recorded_cutoff;"
+        },
+        "duplicate_winners": {
+          "rejected": true,
+          "failed_fixtures": 31,
+          "example_fixture": "single_state",
+          "expected": [
+            [
+              "A",
+              "XYZ",
+              "BUY",
+              10,
+              12345
+            ]
+          ],
+          "actual": [
+            [
+              "A",
+              "XYZ",
+              "BUY",
+              10,
+              12345
+            ],
+            [
+              "A",
+              "XYZ",
+              "BUY",
+              10,
+              12345
+            ]
+          ],
+          "candidate_sql": "\nWITH ranked AS (\n SELECT *, ROW_NUMBER() OVER (PARTITION BY order_id ORDER BY effective_at DESC, recorded_at DESC) AS rn\n FROM order_versions WHERE effective_at <= :effective_cutoff AND recorded_at <= :recorded_cutoff\n)\nSELECT order_id, symbol, side, open_qty, limit_price_cents FROM ranked WHERE rn = 1 UNION ALL SELECT order_id, symbol, side, open_qty, limit_price_cents FROM ranked WHERE rn = 1;"
+        },
+        "independent_column_maxima": {
+          "rejected": true,
+          "failed_fixtures": 17,
+          "example_fixture": "effective_precedes_recorded",
+          "expected": [
+            [
+              "A",
+              "XYZ",
+              "BUY",
+              20,
+              12345
+            ]
+          ],
+          "actual": [
+            [
+              "A",
+              "XYZ",
+              "BUY",
+              88,
+              12345
+            ]
+          ],
+          "candidate_sql": "\n      SELECT order_id, MAX(symbol) AS symbol, MAX(side) AS side,\n             MAX(open_qty) AS open_qty, MAX(limit_price_cents) AS limit_price_cents\n      FROM order_versions WHERE effective_at <= :effective_cutoff AND recorded_at <= :recorded_cutoff GROUP BY order_id;\n    "
+        },
+        "sum_replacements_as_deltas": {
+          "rejected": true,
+          "failed_fixtures": 20,
+          "example_fixture": "late_correction_same_effective",
+          "expected": [
+            [
+              "A",
+              "XYZ",
+              "BUY",
+              12,
+              12345
+            ]
+          ],
+          "actual": [
+            [
+              "A",
+              "XYZ",
+              "BUY",
+              22,
+              12345
+            ]
+          ],
+          "candidate_sql": "\n      SELECT order_id, MAX(symbol) AS symbol, MAX(side) AS side,\n             SUM(open_qty) AS open_qty, MAX(limit_price_cents) AS limit_price_cents\n      FROM order_versions WHERE effective_at <= :effective_cutoff AND recorded_at <= :recorded_cutoff GROUP BY order_id;\n    "
+        }
+      },
+      "participant_review": {
+        "status": "human_verified",
+        "reviewer": "Michael Acheampong",
+        "date": "2026-11-08",
+        "scope": [
+          "prompt",
+          "SQL reference",
+          "Python oracle"
+        ],
+        "record": "reference/t01/review.md"
+      },
+      "artifact_hashes": {
+        "tasks/t01/metadata.json": "ee7218d6dbfe1f4d3185a6756542ff6f299c2749aa462c01f71f2bc7c01f35f4",
+        "tasks/t01/prompt.md": "fc8dcbeb2f1535085a9a36bf1526152e030f9c1333028e83b5ad9fbddfc43642",
+        "tasks/t01/schema.sql": "e2ab1f5a971f08081aa198720cc0c7ab55f65de3b4a548a84906c11a99a38793",
+        "tasks/t01/fixtures/hand_cases.json": "44697c4342ff704af31048625707fb4aa5f06878a61d80932ece7a65afe015aa",
+        "tasks/t01/fixtures/generated_cases.json": "5f9abc9cd772618c46059a4739076453a77888e4ccac30053b64ceab8fc5e1c1",
+        "graders/__init__.py": "9056f5127af1cc738a03df4a1dfd939fac6859c7ab92caea26a44a378a048333",
+        "graders/normalize.py": "cd139c464de09a058e7759150130dcd3b354a68f605ef0e4cbd9a835acc9db61",
+        "graders/sql_outcome.py": "b5e94d0ea7f6a90b706aac56a6b9c32e40686b3fa1a74885683267a935ef4b26",
+        "harness/__init__.py": "abccfab8bf5d2e55b2954f7ff89aa823fbe2e8ea83a242173c6c0f6ad2d6df25",
+        "harness/credentials.py": "4e12e683055abcee3a6a9e40ee18849b6cedda87cb0bc7ab10d8a3aefa2f081d",
+        "harness/providers.py": "b1f7ebe3c6f7f05a25972f09dac6a30d5cecfc58b19d3737efa5469be57967e2",
+        "harness/replay.py": "b138976d919d709e2ad8ea78b65266628b6c35887206efddb11b055c79ede6dc",
+        "harness/run.py": "281d566fd08d349700c98e779e8d9b3da23e8f4fbe5c229e04aa5ccab77ec658",
+        "harness/tasks.py": "3ad1a72614204385d987ee2e3d1157413695599e19214b650aa45ab9dc1938ed",
+        "reference/t01/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reference/t01/oracle.py": "cd65adf4e9cee2df7935ed29d8fa48ea34f0ba3370182467749de39941b65231",
+        "reference/t01/solution.sql": "253aa906cd95bc0f9a52aef03d911974479e8b76dd6063134cba582fa09ee6d1",
+        "configs/models.json": "2e895df0d9af44dfab1e02a933804d5ebfe4377978432c7554d3bde0678496e5",
+        "configs/experiment.json": "3d4df608f74256e84b1107fa4ffdd4fd31523c9e6b90576199c6ad178050535b",
+        "pyproject.toml": "ffd5d3c7f1930aef7c8b7786a39c0f9bdcae7c6f78670b510cac31ac2a7f0927",
+        ".python-version": "02e735b3dfe1c32833eb550b7ff8ffa17f5f2bc3fa1e7bae61a8f5a3883ce398",
+        "uv.lock": "dbc9564f9e47acd819f90a51d73f9b3359c58c72f546f0351c502a2f207f9477"
+      }
+    },
+    "t02": {
+      "fixtures": 28,
+      "explicit_goldens": 12,
+      "reference_passes": true,
+      "accepted_alternatives": [
+        "correlated_alternative"
+      ],
+      "mutations": {
+        "delete_filtered_before_winner": {
+          "rejected": true,
+          "failed_fixtures": 10,
+          "example_fixture": "visible_withdrawal",
+          "expected": [],
+          "actual": [
+            [
+              "A",
+              "XYZ",
+              "BUY",
+              10,
+              100
+            ]
+          ],
+          "candidate_sql": "WITH report_state AS (\n  SELECT *, ROW_NUMBER() OVER (\n    PARTITION BY order_id ORDER BY effective_at DESC, recorded_at DESC\n  ) AS rn\n  FROM order_versions\n  WHERE operation='UPSERT' AND effective_at <= :effective_cutoff AND recorded_at <= :recorded_cutoff\n)\nSELECT order_id, symbol, side, open_qty, limit_price_cents\nFROM report_state WHERE rn=1 AND operation='UPSERT';\n"
+        },
+        "delete_ignored": {
+          "rejected": true,
+          "failed_fixtures": 18,
+          "example_fixture": "visible_withdrawal",
+          "expected": [],
+          "actual": [
+            [
+              "A",
+              "XYZ",
+              "BUY",
+              99,
+              100
+            ]
+          ],
+          "candidate_sql": "WITH report_state AS (\n  SELECT *, ROW_NUMBER() OVER (\n    PARTITION BY order_id ORDER BY effective_at DESC, recorded_at DESC\n  ) AS rn\n  FROM order_versions\n  WHERE effective_at <= :effective_cutoff AND recorded_at <= :recorded_cutoff\n)\nSELECT order_id, symbol, side, open_qty, limit_price_cents\nFROM report_state WHERE rn=1 ;\n"
+        },
+        "missing_knowledge_cutoff": {
+          "rejected": true,
+          "failed_fixtures": 10,
+          "example_fixture": "unknown_withdrawal",
+          "expected": [
+            [
+              "A",
+              "XYZ",
+              "BUY",
+              10,
+              100
+            ]
+          ],
+          "actual": [],
+          "candidate_sql": "WITH report_state AS (\n  SELECT *, ROW_NUMBER() OVER (\n    PARTITION BY order_id ORDER BY effective_at DESC, recorded_at DESC\n  ) AS rn\n  FROM order_versions\n  WHERE effective_at <= :effective_cutoff\n)\nSELECT order_id, symbol, side, open_qty, limit_price_cents\nFROM report_state WHERE rn=1 AND operation='UPSERT';\n"
+        },
+        "missing_effective_cutoff": {
+          "rejected": true,
+          "failed_fixtures": 15,
+          "example_fixture": "future_withdrawal",
+          "expected": [
+            [
+              "A",
+              "XYZ",
+              "BUY",
+              10,
+              100
+            ]
+          ],
+          "actual": [],
+          "candidate_sql": "WITH report_state AS (\n  SELECT *, ROW_NUMBER() OVER (\n    PARTITION BY order_id ORDER BY effective_at DESC, recorded_at DESC\n  ) AS rn\n  FROM order_versions\n  WHERE recorded_at <= :recorded_cutoff\n)\nSELECT order_id, symbol, side, open_qty, limit_price_cents\nFROM report_state WHERE rn=1 AND operation='UPSERT';\n"
+        },
+        "recorded_first": {
+          "rejected": true,
+          "failed_fixtures": 8,
+          "example_fixture": "old_state_late_delete",
+          "expected": [
+            [
+              "A",
+              "XYZ",
+              "BUY",
+              4,
+              100
+            ]
+          ],
+          "actual": [],
+          "candidate_sql": "WITH report_state AS (\n  SELECT *, ROW_NUMBER() OVER (\n    PARTITION BY order_id ORDER BY recorded_at DESC, effective_at DESC\n  ) AS rn\n  FROM order_versions\n  WHERE effective_at <= :effective_cutoff AND recorded_at <= :recorded_cutoff\n)\nSELECT order_id, symbol, side, open_qty, limit_price_cents\nFROM report_state WHERE rn=1 AND operation='UPSERT';\n"
+        },
+        "zero_dropped": {
+          "rejected": true,
+          "failed_fixtures": 3,
+          "example_fixture": "zero_is_not_delete",
+          "expected": [
+            [
+              "A",
+              "XYZ",
+              "BUY",
+              0,
+              100
+            ]
+          ],
+          "actual": [],
+          "candidate_sql": "WITH report_state AS (\n  SELECT *, ROW_NUMBER() OVER (\n    PARTITION BY order_id ORDER BY effective_at DESC, recorded_at DESC\n  ) AS rn\n  FROM order_versions\n  WHERE effective_at <= :effective_cutoff AND recorded_at <= :recorded_cutoff\n)\nSELECT order_id, symbol, side, open_qty, limit_price_cents\nFROM report_state WHERE rn=1 AND open_qty>0 AND operation='UPSERT';\n"
+        },
+        "boundary_exclusive": {
+          "rejected": true,
+          "failed_fixtures": 9,
+          "example_fixture": "exact_boundary_withdrawal",
+          "expected": [],
+          "actual": [
+            [
+              "A",
+              "XYZ",
+              "BUY",
+              10,
+              100
+            ]
+          ],
+          "candidate_sql": "WITH report_state AS (\n  SELECT *, ROW_NUMBER() OVER (\n    PARTITION BY order_id ORDER BY effective_at DESC, recorded_at DESC\n  ) AS rn\n  FROM order_versions\n  WHERE effective_at < :effective_cutoff AND recorded_at <= :recorded_cutoff\n)\nSELECT order_id, symbol, side, open_qty, limit_price_cents\nFROM report_state WHERE rn=1 AND operation='UPSERT';\n"
+        }
+      },
+      "participant_review": {
+        "status": "pending"
+      },
+      "artifact_hashes": {
+        "tasks/t02/metadata.json": "b5aa546ead63f2b6529a2c4f28f6c1af8fa3bf144e628039fc2f7a8f4cb1b73f",
+        "tasks/t02/prompt.md": "7a18fdbb47157cf3fe052e5f0fa5f96e50a4a96772a153ea64c9d43d3361ec24",
+        "tasks/t02/schema.sql": "8252a3530a82a07eb8d9c0ddc8bc5016c07f8ddcd11a7dc039b1e55c68647983",
+        "tasks/t02/fixtures/cases.json": "5376d94735341ed6eeed211880c48e1c1fccea701f1974c9f530268649bbce80",
+        "graders/__init__.py": "9056f5127af1cc738a03df4a1dfd939fac6859c7ab92caea26a44a378a048333",
+        "graders/normalize.py": "cd139c464de09a058e7759150130dcd3b354a68f605ef0e4cbd9a835acc9db61",
+        "graders/sql_outcome.py": "b5e94d0ea7f6a90b706aac56a6b9c32e40686b3fa1a74885683267a935ef4b26",
+        "harness/__init__.py": "abccfab8bf5d2e55b2954f7ff89aa823fbe2e8ea83a242173c6c0f6ad2d6df25",
+        "harness/credentials.py": "4e12e683055abcee3a6a9e40ee18849b6cedda87cb0bc7ab10d8a3aefa2f081d",
+        "harness/providers.py": "b1f7ebe3c6f7f05a25972f09dac6a30d5cecfc58b19d3737efa5469be57967e2",
+        "harness/replay.py": "b138976d919d709e2ad8ea78b65266628b6c35887206efddb11b055c79ede6dc",
+        "harness/run.py": "281d566fd08d349700c98e779e8d9b3da23e8f4fbe5c229e04aa5ccab77ec658",
+        "harness/tasks.py": "3ad1a72614204385d987ee2e3d1157413695599e19214b650aa45ab9dc1938ed",
+        "reference/t02/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reference/t02/oracle.py": "d2c5d56b597d4190e6c4a012dddd76bd6df14fa8776018afc3eb6c63e0a8528d",
+        "reference/t02/solution.sql": "47f72f43758a4ea3d46e43345abb6b59344a949bff567f469860807edea774ae",
+        "configs/models.json": "2e895df0d9af44dfab1e02a933804d5ebfe4377978432c7554d3bde0678496e5",
+        "configs/experiment.json": "3d4df608f74256e84b1107fa4ffdd4fd31523c9e6b90576199c6ad178050535b",
+        "pyproject.toml": "ffd5d3c7f1930aef7c8b7786a39c0f9bdcae7c6f78670b510cac31ac2a7f0927",
+        ".python-version": "02e735b3dfe1c32833eb550b7ff8ffa17f5f2bc3fa1e7bae61a8f5a3883ce398",
+        "uv.lock": "dbc9564f9e47acd819f90a51d73f9b3359c58c72f546f0351c502a2f207f9477"
+      }
+    },
+    "t03": {
+      "fixtures": 29,
+      "explicit_goldens": 13,
+      "reference_passes": true,
+      "accepted_alternatives": [
+        "correlated_alternative"
+      ],
+      "mutations": {
+        "effective_filter_before_restatement": {
+          "rejected": true,
+          "failed_fixtures": 11,
+          "example_fixture": "correction_moves_amendment_out",
+          "expected": [
+            [
+              "A",
+              "XYZ",
+              "BUY",
+              5,
+              100
+            ]
+          ],
+          "actual": [
+            [
+              "A",
+              "XYZ",
+              "BUY",
+              20,
+              100
+            ]
+          ],
+          "candidate_sql": "WITH known_revisions AS (\n  SELECT *, ROW_NUMBER() OVER (\n    PARTITION BY order_id, amendment_no ORDER BY recorded_at DESC\n  ) AS revision_rank\n  FROM order_versions WHERE effective_at <= :effective_cutoff AND recorded_at <= :recorded_cutoff\n), applicable_amendments AS (\n  SELECT *, ROW_NUMBER() OVER (\n    PARTITION BY order_id ORDER BY effective_at DESC, amendment_no DESC\n  ) AS order_rank\n  FROM known_revisions WHERE revision_rank=1 AND effective_at <= :effective_cutoff\n)\nSELECT order_id, symbol, side, open_qty, limit_price_cents\nFROM applicable_amendments WHERE order_rank=1;\n"
+        },
+        "all_revisions_are_events": {
+          "rejected": true,
+          "failed_fixtures": 16,
+          "example_fixture": "correction_moves_amendment_out",
+          "expected": [
+            [
+              "A",
+              "XYZ",
+              "BUY",
+              5,
+              100
+            ]
+          ],
+          "actual": [
+            [
+              "A",
+              "XYZ",
+              "BUY",
+              20,
+              100
+            ]
+          ],
+          "candidate_sql": "WITH known_revisions AS (\n  SELECT *, ROW_NUMBER() OVER (\n    PARTITION BY order_id, amendment_no ORDER BY recorded_at DESC\n  ) AS revision_rank\n  FROM order_versions WHERE recorded_at <= :recorded_cutoff\n), applicable_amendments AS (\n  SELECT *, ROW_NUMBER() OVER (\n    PARTITION BY order_id ORDER BY effective_at DESC, amendment_no DESC\n  ) AS order_rank\n  FROM known_revisions WHERE effective_at <= :effective_cutoff\n)\nSELECT order_id, symbol, side, open_qty, limit_price_cents\nFROM applicable_amendments WHERE order_rank=1;\n"
+        },
+        "future_knowledge_leaks": {
+          "rejected": true,
+          "failed_fixtures": 12,
+          "example_fixture": "unknown_retro_correction",
+          "expected": [
+            [
+              "A",
+              "XYZ",
+              "BUY",
+              10,
+              100
+            ]
+          ],
+          "actual": [
+            [
+              "A",
+              "XYZ",
+              "BUY",
+              99,
+              100
+            ]
+          ],
+          "candidate_sql": "WITH known_revisions AS (\n  SELECT *, ROW_NUMBER() OVER (\n    PARTITION BY order_id, amendment_no ORDER BY recorded_at DESC\n  ) AS revision_rank\n  FROM order_versions\n), applicable_amendments AS (\n  SELECT *, ROW_NUMBER() OVER (\n    PARTITION BY order_id ORDER BY effective_at DESC, amendment_no DESC\n  ) AS order_rank\n  FROM known_revisions WHERE revision_rank=1 AND effective_at <= :effective_cutoff\n)\nSELECT order_id, symbol, side, open_qty, limit_price_cents\nFROM applicable_amendments WHERE order_rank=1;\n"
+        },
+        "first_recorded_revision": {
+          "rejected": true,
+          "failed_fixtures": 18,
+          "example_fixture": "known_retro_correction",
+          "expected": [
+            [
+              "A",
+              "XYZ",
+              "BUY",
+              12,
+              100
+            ]
+          ],
+          "actual": [
+            [
+              "A",
+              "XYZ",
+              "BUY",
+              10,
+              100
+            ]
+          ],
+          "candidate_sql": "WITH known_revisions AS (\n  SELECT *, ROW_NUMBER() OVER (\n    PARTITION BY order_id, amendment_no ORDER BY recorded_at ASC\n  ) AS revision_rank\n  FROM order_versions WHERE recorded_at <= :recorded_cutoff\n), applicable_amendments AS (\n  SELECT *, ROW_NUMBER() OVER (\n    PARTITION BY order_id ORDER BY effective_at DESC, amendment_no DESC\n  ) AS order_rank\n  FROM known_revisions WHERE revision_rank=1 AND effective_at <= :effective_cutoff\n)\nSELECT order_id, symbol, side, open_qty, limit_price_cents\nFROM applicable_amendments WHERE order_rank=1;\n"
+        },
+        "latest_arrival_over_business_time": {
+          "rejected": true,
+          "failed_fixtures": 10,
+          "example_fixture": "old_amendment_arrives_later",
+          "expected": [
+            [
+              "A",
+              "XYZ",
+              "BUY",
+              20,
+              100
+            ]
+          ],
+          "actual": [
+            [
+              "A",
+              "XYZ",
+              "BUY",
+              12,
+              100
+            ]
+          ],
+          "candidate_sql": "WITH known_revisions AS (\n  SELECT *, ROW_NUMBER() OVER (\n    PARTITION BY order_id, amendment_no ORDER BY recorded_at DESC\n  ) AS revision_rank\n  FROM order_versions WHERE recorded_at <= :recorded_cutoff\n), applicable_amendments AS (\n  SELECT *, ROW_NUMBER() OVER (\n    PARTITION BY order_id ORDER BY recorded_at DESC, amendment_no DESC\n  ) AS order_rank\n  FROM known_revisions WHERE revision_rank=1 AND effective_at <= :effective_cutoff\n)\nSELECT order_id, symbol, side, open_qty, limit_price_cents\nFROM applicable_amendments WHERE order_rank=1;\n"
+        },
+        "amendment_scope_leak": {
+          "rejected": true,
+          "failed_fixtures": 18,
+          "example_fixture": "amendment_numbers_scoped_by_order",
+          "expected": [
+            [
+              "A",
+              "XYZ",
+              "BUY",
+              10,
+              100
+            ],
+            [
+              "B",
+              "XYZ",
+              "BUY",
+              20,
+              100
+            ]
+          ],
+          "actual": [
+            [
+              "B",
+              "XYZ",
+              "BUY",
+              20,
+              100
+            ]
+          ],
+          "candidate_sql": "WITH known_revisions AS (\n  SELECT *, ROW_NUMBER() OVER (\n    PARTITION BY amendment_no ORDER BY recorded_at DESC\n  ) AS revision_rank\n  FROM order_versions WHERE recorded_at <= :recorded_cutoff\n), applicable_amendments AS (\n  SELECT *, ROW_NUMBER() OVER (\n    PARTITION BY order_id ORDER BY effective_at DESC, amendment_no DESC\n  ) AS order_rank\n  FROM known_revisions WHERE revision_rank=1 AND effective_at <= :effective_cutoff\n)\nSELECT order_id, symbol, side, open_qty, limit_price_cents\nFROM applicable_amendments WHERE order_rank=1;\n"
+        },
+        "wrong_amendment_tie": {
+          "rejected": true,
+          "failed_fixtures": 7,
+          "example_fixture": "equal_effective_amendment_priority",
+          "expected": [
+            [
+              "A",
+              "XYZ",
+              "BUY",
+              20,
+              100
+            ]
+          ],
+          "actual": [
+            [
+              "A",
+              "XYZ",
+              "BUY",
+              10,
+              100
+            ]
+          ],
+          "candidate_sql": "WITH known_revisions AS (\n  SELECT *, ROW_NUMBER() OVER (\n    PARTITION BY order_id, amendment_no ORDER BY recorded_at DESC\n  ) AS revision_rank\n  FROM order_versions WHERE recorded_at <= :recorded_cutoff\n), applicable_amendments AS (\n  SELECT *, ROW_NUMBER() OVER (\n    PARTITION BY order_id ORDER BY effective_at DESC, amendment_no ASC\n  ) AS order_rank\n  FROM known_revisions WHERE revision_rank=1 AND effective_at <= :effective_cutoff\n)\nSELECT order_id, symbol, side, open_qty, limit_price_cents\nFROM applicable_amendments WHERE order_rank=1;\n"
+        },
+        "exclusive_knowledge_boundary": {
+          "rejected": true,
+          "failed_fixtures": 14,
+          "example_fixture": "inclusive_both_boundaries",
+          "expected": [
+            [
+              "A",
+              "XYZ",
+              "BUY",
+              0,
+              100
+            ]
+          ],
+          "actual": [],
+          "candidate_sql": "WITH known_revisions AS (\n  SELECT *, ROW_NUMBER() OVER (\n    PARTITION BY order_id, amendment_no ORDER BY recorded_at DESC\n  ) AS revision_rank\n  FROM order_versions WHERE recorded_at < :recorded_cutoff\n), applicable_amendments AS (\n  SELECT *, ROW_NUMBER() OVER (\n    PARTITION BY order_id ORDER BY effective_at DESC, amendment_no DESC\n  ) AS order_rank\n  FROM known_revisions WHERE revision_rank=1 AND effective_at <= :effective_cutoff\n)\nSELECT order_id, symbol, side, open_qty, limit_price_cents\nFROM applicable_amendments WHERE order_rank=1;\n"
+        }
+      },
+      "participant_review": {
+        "status": "pending"
+      },
+      "artifact_hashes": {
+        "tasks/t03/metadata.json": "eb13818c9873578ba107fd1baf26de028c4d11d8ce3b20232bf87d4423ca065f",
+        "tasks/t03/prompt.md": "7d850c3a208d39e6761d580fa35979fc214ca11649965e0360181e970d0de355",
+        "tasks/t03/schema.sql": "9cd2f8871b4b415b20a4adb52533b05512917d88b43baa091a9d5bdd0641565a",
+        "tasks/t03/fixtures/cases.json": "db2bf2d4dae06fef1de2e23c2fbd101d7ea1ea4d1f8a9727b789cd7e8f2579a5",
+        "graders/__init__.py": "9056f5127af1cc738a03df4a1dfd939fac6859c7ab92caea26a44a378a048333",
+        "graders/normalize.py": "cd139c464de09a058e7759150130dcd3b354a68f605ef0e4cbd9a835acc9db61",
+        "graders/sql_outcome.py": "b5e94d0ea7f6a90b706aac56a6b9c32e40686b3fa1a74885683267a935ef4b26",
+        "harness/__init__.py": "abccfab8bf5d2e55b2954f7ff89aa823fbe2e8ea83a242173c6c0f6ad2d6df25",
+        "harness/credentials.py": "4e12e683055abcee3a6a9e40ee18849b6cedda87cb0bc7ab10d8a3aefa2f081d",
+        "harness/providers.py": "b1f7ebe3c6f7f05a25972f09dac6a30d5cecfc58b19d3737efa5469be57967e2",
+        "harness/replay.py": "b138976d919d709e2ad8ea78b65266628b6c35887206efddb11b055c79ede6dc",
+        "harness/run.py": "281d566fd08d349700c98e779e8d9b3da23e8f4fbe5c229e04aa5ccab77ec658",
+        "harness/tasks.py": "3ad1a72614204385d987ee2e3d1157413695599e19214b650aa45ab9dc1938ed",
+        "reference/t03/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reference/t03/oracle.py": "2eeb57bf806af238c2d371572e8f7696494563e1ece439cae6a9c9d52fe31573",
+        "reference/t03/solution.sql": "079c7b1da9f5a5113c91533dbbb647086435a67624f0ce046910fc2f5e9c8ac2",
+        "configs/models.json": "2e895df0d9af44dfab1e02a933804d5ebfe4377978432c7554d3bde0678496e5",
+        "configs/experiment.json": "3d4df608f74256e84b1107fa4ffdd4fd31523c9e6b90576199c6ad178050535b",
+        "pyproject.toml": "ffd5d3c7f1930aef7c8b7786a39c0f9bdcae7c6f78670b510cac31ac2a7f0927",
+        ".python-version": "02e735b3dfe1c32833eb550b7ff8ffa17f5f2bc3fa1e7bae61a8f5a3883ce398",
+        "uv.lock": "dbc9564f9e47acd819f90a51d73f9b3359c58c72f546f0351c502a2f207f9477"
+      }
+    },
+    "t04": {
+      "fixtures": 31,
+      "explicit_goldens": 15,
+      "reference_passes": true,
+      "accepted_alternatives": [
+        "correlated_alternative"
+      ],
+      "mutations": {
+        "missing_revision": {
+          "rejected": true,
+          "failed_fixtures": 5,
+          "example_fixture": "revision_wins_equal_clocks",
+          "expected": [
+            [
+              "A",
+              "XYZ",
+              "BUY",
+              20,
+              100
+            ]
+          ],
+          "actual": [
+            [
+              "A",
+              "XYZ",
+              "BUY",
+              10,
+              100
+            ]
+          ],
+          "candidate_sql": "WITH logical_events AS (\n  SELECT DISTINCT event_id, order_id, effective_at, recorded_at, revision, source_seq,\n                  operation, symbol, side, open_qty, limit_price_cents\n  FROM order_versions\n), ranked AS (\n  SELECT *, ROW_NUMBER() OVER (\n    PARTITION BY order_id\n    ORDER BY effective_at DESC, recorded_at DESC, source_seq DESC\n  ) AS rn\n  FROM logical_events\n  WHERE effective_at <= :effective_cutoff AND recorded_at <= :recorded_cutoff\n)\nSELECT order_id, symbol, side, open_qty, limit_price_cents\nFROM ranked WHERE rn=1 AND operation='UPSERT';\n"
+        },
+        "missing_source_sequence": {
+          "rejected": true,
+          "failed_fixtures": 1,
+          "example_fixture": "source_sequence_breaks_revision_tie",
+          "expected": [
+            [
+              "A",
+              "XYZ",
+              "BUY",
+              20,
+              100
+            ]
+          ],
+          "actual": [
+            [
+              "A",
+              "XYZ",
+              "BUY",
+              10,
+              100
+            ]
+          ],
+          "candidate_sql": "WITH logical_events AS (\n  SELECT DISTINCT event_id, order_id, effective_at, recorded_at, revision, source_seq,\n                  operation, symbol, side, open_qty, limit_price_cents\n  FROM order_versions\n), ranked AS (\n  SELECT *, ROW_NUMBER() OVER (\n    PARTITION BY order_id\n    ORDER BY effective_at DESC, recorded_at DESC, revision DESC\n  ) AS rn\n  FROM logical_events\n  WHERE effective_at <= :effective_cutoff AND recorded_at <= :recorded_cutoff\n)\nSELECT order_id, symbol, side, open_qty, limit_price_cents\nFROM ranked WHERE rn=1 AND operation='UPSERT';\n"
+        },
+        "counter_before_business_time": {
+          "rejected": true,
+          "failed_fixtures": 14,
+          "example_fixture": "business_time_beats_counter",
+          "expected": [
+            [
+              "A",
+              "XYZ",
+              "BUY",
+              20,
+              100
+            ]
+          ],
+          "actual": [
+            [
+              "A",
+              "XYZ",
+              "BUY",
+              99,
+              100
+            ]
+          ],
+          "candidate_sql": "WITH logical_events AS (\n  SELECT DISTINCT event_id, order_id, effective_at, recorded_at, revision, source_seq,\n                  operation, symbol, side, open_qty, limit_price_cents\n  FROM order_versions\n), ranked AS (\n  SELECT *, ROW_NUMBER() OVER (\n    PARTITION BY order_id\n    ORDER BY revision DESC, source_seq DESC, effective_at DESC, recorded_at DESC\n  ) AS rn\n  FROM logical_events\n  WHERE effective_at <= :effective_cutoff AND recorded_at <= :recorded_cutoff\n)\nSELECT order_id, symbol, side, open_qty, limit_price_cents\nFROM ranked WHERE rn=1 AND operation='UPSERT';\n"
+        },
+        "source_sequence_before_revision": {
+          "rejected": true,
+          "failed_fixtures": 2,
+          "example_fixture": "revision_wins_equal_clocks",
+          "expected": [
+            [
+              "A",
+              "XYZ",
+              "BUY",
+              20,
+              100
+            ]
+          ],
+          "actual": [
+            [
+              "A",
+              "XYZ",
+              "BUY",
+              10,
+              100
+            ]
+          ],
+          "candidate_sql": "WITH logical_events AS (\n  SELECT DISTINCT event_id, order_id, effective_at, recorded_at, revision, source_seq,\n                  operation, symbol, side, open_qty, limit_price_cents\n  FROM order_versions\n), ranked AS (\n  SELECT *, ROW_NUMBER() OVER (\n    PARTITION BY order_id\n    ORDER BY effective_at DESC, recorded_at DESC, source_seq DESC, revision DESC\n  ) AS rn\n  FROM logical_events\n  WHERE effective_at <= :effective_cutoff AND recorded_at <= :recorded_cutoff\n)\nSELECT order_id, symbol, side, open_qty, limit_price_cents\nFROM ranked WHERE rn=1 AND operation='UPSERT';\n"
+        },
+        "numeric_revision_as_text": {
+          "rejected": true,
+          "failed_fixtures": 1,
+          "example_fixture": "revision_compared_numerically",
+          "expected": [
+            [
+              "A",
+              "XYZ",
+              "BUY",
+              20,
+              100
+            ]
+          ],
+          "actual": [
+            [
+              "A",
+              "XYZ",
+              "BUY",
+              10,
+              100
+            ]
+          ],
+          "candidate_sql": "WITH logical_events AS (\n  SELECT DISTINCT event_id, order_id, effective_at, recorded_at, revision, source_seq,\n                  operation, symbol, side, open_qty, limit_price_cents\n  FROM order_versions\n), ranked AS (\n  SELECT *, ROW_NUMBER() OVER (\n    PARTITION BY order_id\n    ORDER BY effective_at DESC, recorded_at DESC, CAST(revision AS TEXT) DESC, source_seq DESC\n  ) AS rn\n  FROM logical_events\n  WHERE effective_at <= :effective_cutoff AND recorded_at <= :recorded_cutoff\n)\nSELECT order_id, symbol, side, open_qty, limit_price_cents\nFROM ranked WHERE rn=1 AND operation='UPSERT';\n"
+        },
+        "duplicate_winners_not_removed": {
+          "rejected": true,
+          "failed_fixtures": 12,
+          "example_fixture": "duplicate_delivery_one_effect",
+          "expected": [
+            [
+              "A",
+              "XYZ",
+              "BUY",
+              10,
+              100
+            ]
+          ],
+          "actual": [
+            [
+              "A",
+              "XYZ",
+              "BUY",
+              10,
+              100
+            ],
+            [
+              "A",
+              "XYZ",
+              "BUY",
+              10,
+              100
+            ]
+          ],
+          "candidate_sql": "SELECT a.order_id,a.symbol,a.side,a.open_qty,a.limit_price_cents\nFROM order_versions a\nWHERE a.operation='UPSERT'\n  AND a.effective_at <= :effective_cutoff AND a.recorded_at <= :recorded_cutoff\n  AND NOT EXISTS (\n    SELECT 1 FROM order_versions b\n    WHERE b.order_id=a.order_id\n      AND b.effective_at <= :effective_cutoff AND b.recorded_at <= :recorded_cutoff\n      AND (b.effective_at,b.recorded_at,b.revision,b.source_seq) >\n          (a.effective_at,a.recorded_at,a.revision,a.source_seq)\n  );\n"
+        },
+        "delete_removed_before_ranking": {
+          "rejected": true,
+          "failed_fixtures": 12,
+          "example_fixture": "tie_resolves_to_delete",
+          "expected": [],
+          "actual": [
+            [
+              "A",
+              "XYZ",
+              "BUY",
+              10,
+              100
+            ]
+          ],
+          "candidate_sql": "WITH logical_events AS (\n  SELECT DISTINCT event_id, order_id, effective_at, recorded_at, revision, source_seq,\n                  operation, symbol, side, open_qty, limit_price_cents\n  FROM order_versions\n), ranked AS (\n  SELECT *, ROW_NUMBER() OVER (\n    PARTITION BY order_id\n    ORDER BY effective_at DESC, recorded_at DESC, revision DESC, source_seq DESC\n  ) AS rn\n  FROM logical_events\n  WHERE operation='UPSERT' AND effective_at <= :effective_cutoff AND recorded_at <= :recorded_cutoff\n)\nSELECT order_id, symbol, side, open_qty, limit_price_cents\nFROM ranked WHERE rn=1 AND operation='UPSERT';\n"
+        },
+        "missing_knowledge_cutoff": {
+          "rejected": true,
+          "failed_fixtures": 10,
+          "example_fixture": "unknown_high_counter",
+          "expected": [
+            [
+              "A",
+              "XYZ",
+              "BUY",
+              10,
+              100
+            ]
+          ],
+          "actual": [
+            [
+              "A",
+              "XYZ",
+              "BUY",
+              999,
+              100
+            ]
+          ],
+          "candidate_sql": "WITH logical_events AS (\n  SELECT DISTINCT event_id, order_id, effective_at, recorded_at, revision, source_seq,\n                  operation, symbol, side, open_qty, limit_price_cents\n  FROM order_versions\n), ranked AS (\n  SELECT *, ROW_NUMBER() OVER (\n    PARTITION BY order_id\n    ORDER BY effective_at DESC, recorded_at DESC, revision DESC, source_seq DESC\n  ) AS rn\n  FROM logical_events\n  WHERE effective_at <= :effective_cutoff\n)\nSELECT order_id, symbol, side, open_qty, limit_price_cents\nFROM ranked WHERE rn=1 AND operation='UPSERT';\n"
+        },
+        "event_label_as_priority": {
+          "rejected": true,
+          "failed_fixtures": 2,
+          "example_fixture": "storage_order_not_priority",
+          "expected": [
+            [
+              "A",
+              "XYZ",
+              "BUY",
+              20,
+              100
+            ]
+          ],
+          "actual": [
+            [
+              "A",
+              "XYZ",
+              "BUY",
+              99,
+              100
+            ]
+          ],
+          "candidate_sql": "WITH logical_events AS (\n  SELECT DISTINCT event_id, order_id, effective_at, recorded_at, revision, source_seq,\n                  operation, symbol, side, open_qty, limit_price_cents\n  FROM order_versions\n), ranked AS (\n  SELECT *, ROW_NUMBER() OVER (\n    PARTITION BY order_id\n    ORDER BY effective_at DESC, recorded_at DESC, event_id DESC\n  ) AS rn\n  FROM logical_events\n  WHERE effective_at <= :effective_cutoff AND recorded_at <= :recorded_cutoff\n)\nSELECT order_id, symbol, side, open_qty, limit_price_cents\nFROM ranked WHERE rn=1 AND operation='UPSERT';\n"
+        }
+      },
+      "participant_review": {
+        "status": "pending"
+      },
+      "artifact_hashes": {
+        "tasks/t04/metadata.json": "0ac62b2281f2d816a489b6acb74719923866e3e7ac6c61b986f78da98c89a46d",
+        "tasks/t04/prompt.md": "d72ecadaa5fa661252e4820ee7915b1768cc06bf7efb43e69fdd42e6af86a2af",
+        "tasks/t04/schema.sql": "0c199fbeb8d66181b6e2dd36b4bf8ba1723270b80c86add777a69b0d9862f787",
+        "tasks/t04/fixtures/cases.json": "b95fe8b2ddad902365b6b700a094392ab7ecc21e4e05e4e1479f5b1bf250d4e8",
+        "graders/__init__.py": "9056f5127af1cc738a03df4a1dfd939fac6859c7ab92caea26a44a378a048333",
+        "graders/normalize.py": "cd139c464de09a058e7759150130dcd3b354a68f605ef0e4cbd9a835acc9db61",
+        "graders/sql_outcome.py": "b5e94d0ea7f6a90b706aac56a6b9c32e40686b3fa1a74885683267a935ef4b26",
+        "harness/__init__.py": "abccfab8bf5d2e55b2954f7ff89aa823fbe2e8ea83a242173c6c0f6ad2d6df25",
+        "harness/credentials.py": "4e12e683055abcee3a6a9e40ee18849b6cedda87cb0bc7ab10d8a3aefa2f081d",
+        "harness/providers.py": "b1f7ebe3c6f7f05a25972f09dac6a30d5cecfc58b19d3737efa5469be57967e2",
+        "harness/replay.py": "b138976d919d709e2ad8ea78b65266628b6c35887206efddb11b055c79ede6dc",
+        "harness/run.py": "281d566fd08d349700c98e779e8d9b3da23e8f4fbe5c229e04aa5ccab77ec658",
+        "harness/tasks.py": "3ad1a72614204385d987ee2e3d1157413695599e19214b650aa45ab9dc1938ed",
+        "reference/t04/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reference/t04/oracle.py": "2d4cd3194704914d6e9b034df0a54bbbc91440dca955a92b9641f83b9236d657",
+        "reference/t04/solution.sql": "48e379ce4756cbc8bb780af09d2afef67726a310d64b388b06759ec3d6fd7dd1",
+        "configs/models.json": "2e895df0d9af44dfab1e02a933804d5ebfe4377978432c7554d3bde0678496e5",
+        "configs/experiment.json": "3d4df608f74256e84b1107fa4ffdd4fd31523c9e6b90576199c6ad178050535b",
+        "pyproject.toml": "ffd5d3c7f1930aef7c8b7786a39c0f9bdcae7c6f78670b510cac31ac2a7f0927",
+        ".python-version": "02e735b3dfe1c32833eb550b7ff8ffa17f5f2bc3fa1e7bae61a8f5a3883ce398",
+        "uv.lock": "dbc9564f9e47acd819f90a51d73f9b3359c58c72f546f0351c502a2f207f9477"
+      }
+    },
+    "t05": {
+      "fixtures": 32,
+      "explicit_goldens": 16,
+      "reference_passes": true,
+      "accepted_alternatives": [
+        "correlated_alternative"
+      ],
+      "mutations": {
+        "window_loses_tenant": {
+          "rejected": true,
+          "failed_fixtures": 13,
+          "example_fixture": "same_order_across_tenants",
+          "expected": [
+            [
+              "T1",
+              "B1",
+              "A",
+              "XYZ",
+              "BUY",
+              10,
+              100
+            ],
+            [
+              "T2",
+              "B1",
+              "A",
+              "XYZ",
+              "BUY",
+              20,
+              100
+            ]
+          ],
+          "actual": [
+            [
+              "T2",
+              "B1",
+              "A",
+              "XYZ",
+              "BUY",
+              20,
+              100
+            ]
+          ],
+          "candidate_sql": "WITH ranked AS (\n  SELECT *, ROW_NUMBER() OVER (\n    PARTITION BY book_id,order_id\n    ORDER BY effective_at DESC,recorded_at DESC\n  ) AS rn\n  FROM order_versions\n  WHERE effective_at <= :effective_cutoff AND recorded_at <= :recorded_cutoff\n)\nSELECT v.tenant_id,v.book_id,v.order_id,v.symbol,v.side,v.open_qty,v.limit_price_cents\nFROM ranked v\nWHERE v.rn=1 AND v.operation='UPSERT'\n  AND NOT EXISTS (\n    SELECT 1 FROM cancellations c\n    WHERE c.tenant_id=v.tenant_id AND c.book_id=v.book_id\n      AND c.cancellation_key=v.cancellation_key\n      AND c.effective_at <= :effective_cutoff AND c.recorded_at <= :recorded_cutoff\n  );\n"
+        },
+        "window_loses_book": {
+          "rejected": true,
+          "failed_fixtures": 14,
+          "example_fixture": "same_order_across_books",
+          "expected": [
+            [
+              "T1",
+              "B1",
+              "A",
+              "XYZ",
+              "BUY",
+              10,
+              100
+            ],
+            [
+              "T1",
+              "B2",
+              "A",
+              "XYZ",
+              "BUY",
+              20,
+              100
+            ]
+          ],
+          "actual": [
+            [
+              "T1",
+              "B2",
+              "A",
+              "XYZ",
+              "BUY",
+              20,
+              100
+            ]
+          ],
+          "candidate_sql": "WITH ranked AS (\n  SELECT *, ROW_NUMBER() OVER (\n    PARTITION BY tenant_id,order_id\n    ORDER BY effective_at DESC,recorded_at DESC\n  ) AS rn\n  FROM order_versions\n  WHERE effective_at <= :effective_cutoff AND recorded_at <= :recorded_cutoff\n)\nSELECT v.tenant_id,v.book_id,v.order_id,v.symbol,v.side,v.open_qty,v.limit_price_cents\nFROM ranked v\nWHERE v.rn=1 AND v.operation='UPSERT'\n  AND NOT EXISTS (\n    SELECT 1 FROM cancellations c\n    WHERE c.tenant_id=v.tenant_id AND c.book_id=v.book_id\n      AND c.cancellation_key=v.cancellation_key\n      AND c.effective_at <= :effective_cutoff AND c.recorded_at <= :recorded_cutoff\n  );\n"
+        },
+        "cancel_loses_tenant": {
+          "rejected": true,
+          "failed_fixtures": 10,
+          "example_fixture": "cancel_key_collision_tenant",
+          "expected": [
+            [
+              "T2",
+              "B1",
+              "A",
+              "XYZ",
+              "BUY",
+              20,
+              100
+            ]
+          ],
+          "actual": [],
+          "candidate_sql": "WITH ranked AS (\n  SELECT *, ROW_NUMBER() OVER (\n    PARTITION BY tenant_id,book_id,order_id\n    ORDER BY effective_at DESC,recorded_at DESC\n  ) AS rn\n  FROM order_versions\n  WHERE effective_at <= :effective_cutoff AND recorded_at <= :recorded_cutoff\n)\nSELECT v.tenant_id,v.book_id,v.order_id,v.symbol,v.side,v.open_qty,v.limit_price_cents\nFROM ranked v\nWHERE v.rn=1 AND v.operation='UPSERT'\n  AND NOT EXISTS (\n    SELECT 1 FROM cancellations c\n    WHERE c.book_id=v.book_id\n      AND c.cancellation_key=v.cancellation_key\n      AND c.effective_at <= :effective_cutoff AND c.recorded_at <= :recorded_cutoff\n  );\n"
+        },
+        "cancel_loses_book": {
+          "rejected": true,
+          "failed_fixtures": 11,
+          "example_fixture": "cancel_key_collision_book",
+          "expected": [
+            [
+              "T1",
+              "B2",
+              "A",
+              "XYZ",
+              "BUY",
+              20,
+              100
+            ]
+          ],
+          "actual": [],
+          "candidate_sql": "WITH ranked AS (\n  SELECT *, ROW_NUMBER() OVER (\n    PARTITION BY tenant_id,book_id,order_id\n    ORDER BY effective_at DESC,recorded_at DESC\n  ) AS rn\n  FROM order_versions\n  WHERE effective_at <= :effective_cutoff AND recorded_at <= :recorded_cutoff\n)\nSELECT v.tenant_id,v.book_id,v.order_id,v.symbol,v.side,v.open_qty,v.limit_price_cents\nFROM ranked v\nWHERE v.rn=1 AND v.operation='UPSERT'\n  AND NOT EXISTS (\n    SELECT 1 FROM cancellations c\n    WHERE c.tenant_id=v.tenant_id\n      AND c.cancellation_key=v.cancellation_key\n      AND c.effective_at <= :effective_cutoff AND c.recorded_at <= :recorded_cutoff\n  );\n"
+        },
+        "cancel_ignores_key": {
+          "rejected": true,
+          "failed_fixtures": 16,
+          "example_fixture": "cancel_other_key",
+          "expected": [
+            [
+              "T1",
+              "B1",
+              "A",
+              "XYZ",
+              "BUY",
+              10,
+              100
+            ]
+          ],
+          "actual": [],
+          "candidate_sql": "WITH ranked AS (\n  SELECT *, ROW_NUMBER() OVER (\n    PARTITION BY tenant_id,book_id,order_id\n    ORDER BY effective_at DESC,recorded_at DESC\n  ) AS rn\n  FROM order_versions\n  WHERE effective_at <= :effective_cutoff AND recorded_at <= :recorded_cutoff\n)\nSELECT v.tenant_id,v.book_id,v.order_id,v.symbol,v.side,v.open_qty,v.limit_price_cents\nFROM ranked v\nWHERE v.rn=1 AND v.operation='UPSERT'\n  AND NOT EXISTS (\n    SELECT 1 FROM cancellations c\n    WHERE c.tenant_id=v.tenant_id AND c.book_id=v.book_id\n      \n      AND c.effective_at <= :effective_cutoff AND c.recorded_at <= :recorded_cutoff\n  );\n"
+        },
+        "unknown_cancel_leaks": {
+          "rejected": true,
+          "failed_fixtures": 6,
+          "example_fixture": "unknown_cancellation",
+          "expected": [
+            [
+              "T1",
+              "B1",
+              "A",
+              "XYZ",
+              "BUY",
+              10,
+              100
+            ]
+          ],
+          "actual": [],
+          "candidate_sql": "WITH ranked AS (\n  SELECT *, ROW_NUMBER() OVER (\n    PARTITION BY tenant_id,book_id,order_id\n    ORDER BY effective_at DESC,recorded_at DESC\n  ) AS rn\n  FROM order_versions\n  WHERE effective_at <= :effective_cutoff AND recorded_at <= :recorded_cutoff\n)\nSELECT v.tenant_id,v.book_id,v.order_id,v.symbol,v.side,v.open_qty,v.limit_price_cents\nFROM ranked v\nWHERE v.rn=1 AND v.operation='UPSERT'\n  AND NOT EXISTS (\n    SELECT 1 FROM cancellations c\n    WHERE c.tenant_id=v.tenant_id AND c.book_id=v.book_id\n      AND c.cancellation_key=v.cancellation_key\n      AND c.effective_at <= :effective_cutoff\n  );\n"
+        },
+        "future_cancel_leaks": {
+          "rejected": true,
+          "failed_fixtures": 6,
+          "example_fixture": "future_cancellation",
+          "expected": [
+            [
+              "T1",
+              "B1",
+              "A",
+              "XYZ",
+              "BUY",
+              10,
+              100
+            ]
+          ],
+          "actual": [],
+          "candidate_sql": "WITH ranked AS (\n  SELECT *, ROW_NUMBER() OVER (\n    PARTITION BY tenant_id,book_id,order_id\n    ORDER BY effective_at DESC,recorded_at DESC\n  ) AS rn\n  FROM order_versions\n  WHERE effective_at <= :effective_cutoff AND recorded_at <= :recorded_cutoff\n)\nSELECT v.tenant_id,v.book_id,v.order_id,v.symbol,v.side,v.open_qty,v.limit_price_cents\nFROM ranked v\nWHERE v.rn=1 AND v.operation='UPSERT'\n  AND NOT EXISTS (\n    SELECT 1 FROM cancellations c\n    WHERE c.tenant_id=v.tenant_id AND c.book_id=v.book_id\n      AND c.cancellation_key=v.cancellation_key\n      AND c.recorded_at <= :recorded_cutoff\n  );\n"
+        },
+        "cancel_before_state_selection": {
+          "rejected": true,
+          "failed_fixtures": 6,
+          "example_fixture": "cancel_current_no_older_fallback",
+          "expected": [],
+          "actual": [
+            [
+              "T1",
+              "B1",
+              "A",
+              "XYZ",
+              "BUY",
+              10,
+              100
+            ]
+          ],
+          "candidate_sql": "WITH ranked AS (\n  SELECT *, ROW_NUMBER() OVER (\n    PARTITION BY tenant_id,book_id,order_id\n    ORDER BY effective_at DESC,recorded_at DESC\n  ) AS rn\n  FROM order_versions o\n  WHERE NOT EXISTS (SELECT 1 FROM cancellations c WHERE c.tenant_id=o.tenant_id AND c.book_id=o.book_id AND c.cancellation_key=o.cancellation_key AND c.effective_at <= :effective_cutoff AND c.recorded_at <= :recorded_cutoff) AND effective_at <= :effective_cutoff AND recorded_at <= :recorded_cutoff\n)\nSELECT v.tenant_id,v.book_id,v.order_id,v.symbol,v.side,v.open_qty,v.limit_price_cents\nFROM ranked v\nWHERE v.rn=1 AND v.operation='UPSERT'\n  AND NOT EXISTS (\n    SELECT 1 FROM cancellations c\n    WHERE c.tenant_id=v.tenant_id AND c.book_id=v.book_id\n      AND c.cancellation_key=v.cancellation_key\n      AND c.effective_at <= :effective_cutoff AND c.recorded_at <= :recorded_cutoff\n  );\n"
+        },
+        "delete_removed_before_state": {
+          "rejected": true,
+          "failed_fixtures": 4,
+          "example_fixture": "delete_scoped_by_book",
+          "expected": [
+            [
+              "T1",
+              "B2",
+              "A",
+              "XYZ",
+              "BUY",
+              20,
+              100
+            ]
+          ],
+          "actual": [
+            [
+              "T1",
+              "B1",
+              "A",
+              "XYZ",
+              "BUY",
+              10,
+              100
+            ],
+            [
+              "T1",
+              "B2",
+              "A",
+              "XYZ",
+              "BUY",
+              20,
+              100
+            ]
+          ],
+          "candidate_sql": "WITH ranked AS (\n  SELECT *, ROW_NUMBER() OVER (\n    PARTITION BY tenant_id,book_id,order_id\n    ORDER BY effective_at DESC,recorded_at DESC\n  ) AS rn\n  FROM order_versions\n  WHERE operation='UPSERT' AND effective_at <= :effective_cutoff AND recorded_at <= :recorded_cutoff\n)\nSELECT v.tenant_id,v.book_id,v.order_id,v.symbol,v.side,v.open_qty,v.limit_price_cents\nFROM ranked v\nWHERE v.rn=1 AND v.operation='UPSERT'\n  AND NOT EXISTS (\n    SELECT 1 FROM cancellations c\n    WHERE c.tenant_id=v.tenant_id AND c.book_id=v.book_id\n      AND c.cancellation_key=v.cancellation_key\n      AND c.effective_at <= :effective_cutoff AND c.recorded_at <= :recorded_cutoff\n  );\n"
+        }
+      },
+      "participant_review": {
+        "status": "pending"
+      },
+      "artifact_hashes": {
+        "tasks/t05/metadata.json": "859d5bbe5b8d80897fd9b1d8e9330f75c05350d0b6c6a6bd52e34a22821d3af1",
+        "tasks/t05/prompt.md": "48f107cc386c7f35950f3d7acc989af54d7eb43f0bc9b858d8abcced90f96d6f",
+        "tasks/t05/schema.sql": "17f98c8919ac872757a6f3e5dddf19877daf5032e5575e2261fb68ba408f6e9e",
+        "tasks/t05/fixtures/cases.json": "22ec32261974068b84c42a5c506c9a27989f587667fc2a663a7e90985d658340",
+        "graders/__init__.py": "9056f5127af1cc738a03df4a1dfd939fac6859c7ab92caea26a44a378a048333",
+        "graders/normalize.py": "cd139c464de09a058e7759150130dcd3b354a68f605ef0e4cbd9a835acc9db61",
+        "graders/sql_outcome.py": "b5e94d0ea7f6a90b706aac56a6b9c32e40686b3fa1a74885683267a935ef4b26",
+        "harness/__init__.py": "abccfab8bf5d2e55b2954f7ff89aa823fbe2e8ea83a242173c6c0f6ad2d6df25",
+        "harness/credentials.py": "4e12e683055abcee3a6a9e40ee18849b6cedda87cb0bc7ab10d8a3aefa2f081d",
+        "harness/providers.py": "b1f7ebe3c6f7f05a25972f09dac6a30d5cecfc58b19d3737efa5469be57967e2",
+        "harness/replay.py": "b138976d919d709e2ad8ea78b65266628b6c35887206efddb11b055c79ede6dc",
+        "harness/run.py": "281d566fd08d349700c98e779e8d9b3da23e8f4fbe5c229e04aa5ccab77ec658",
+        "harness/tasks.py": "3ad1a72614204385d987ee2e3d1157413695599e19214b650aa45ab9dc1938ed",
+        "reference/t05/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reference/t05/oracle.py": "98b8b4d6b1bed7a9bebac750daaa6d9c1f4d33c697063413a610c67e44f306c9",
+        "reference/t05/solution.sql": "01f35327de8ca039f40e4c670b96b1e14f2d63cb5958c2f0f437870a0b5fecfc",
+        "configs/models.json": "2e895df0d9af44dfab1e02a933804d5ebfe4377978432c7554d3bde0678496e5",
+        "configs/experiment.json": "3d4df608f74256e84b1107fa4ffdd4fd31523c9e6b90576199c6ad178050535b",
+        "pyproject.toml": "ffd5d3c7f1930aef7c8b7786a39c0f9bdcae7c6f78670b510cac31ac2a7f0927",
+        ".python-version": "02e735b3dfe1c32833eb550b7ff8ffa17f5f2bc3fa1e7bae61a8f5a3883ce398",
+        "uv.lock": "dbc9564f9e47acd819f90a51d73f9b3359c58c72f546f0351c502a2f207f9477"
+      }
+    },
+    "t06": {
+      "fixtures": 35,
+      "explicit_goldens": 19,
+      "reference_passes": true,
+      "accepted_alternatives": [
+        "correlated_alternative"
+      ],
+      "mutations": {
+        "effective_filter_before_revision_meaning": {
+          "rejected": true,
+          "failed_fixtures": 10,
+          "example_fixture": "known_revision_moves_out",
+          "expected": [
+            [
+              "T1",
+              1,
+              3,
+              300
+            ]
+          ],
+          "actual": [
+            [
+              "T1",
+              1,
+              8,
+              800
+            ]
+          ],
+          "candidate_sql": "WITH logical_events AS (\n  SELECT DISTINCT event_id,tenant_id,book_id,order_id,amendment_no,effective_at,\n    recorded_at,revision,source_seq,operation,side,open_qty,limit_price_cents\n  FROM order_versions\n), known AS (\n  SELECT *, ROW_NUMBER() OVER (\n    PARTITION BY tenant_id,book_id,order_id,amendment_no\n    ORDER BY recorded_at DESC,revision DESC,source_seq DESC\n  ) AS revision_rank\n  FROM logical_events WHERE effective_at <= :effective_cutoff AND recorded_at <= :recorded_cutoff\n), effective AS (\n  SELECT *, ROW_NUMBER() OVER (\n    PARTITION BY tenant_id,book_id,order_id\n    ORDER BY effective_at DESC,amendment_no DESC\n  ) AS order_rank\n  FROM known WHERE revision_rank=1 AND effective_at <= :effective_cutoff\n), active AS (\n  SELECT e.* FROM effective e\n  JOIN reporting_books b ON b.tenant_id=e.tenant_id AND b.book_id=e.book_id\n  WHERE order_rank=1 AND operation='UPSERT'\n), totals AS (\n  SELECT tenant_id,COUNT(*) AS active_order_count,\n    SUM(CASE WHEN side='BUY' THEN open_qty ELSE -open_qty END) AS net_qty,\n    SUM(CASE WHEN side='BUY' THEN open_qty*limit_price_cents ELSE -open_qty*limit_price_cents END) AS net_notional_cents\n  FROM active GROUP BY tenant_id\n), tenants AS (SELECT DISTINCT tenant_id FROM reporting_books)\nSELECT t.tenant_id,COALESCE(s.active_order_count,0) AS active_order_count,\n  COALESCE(s.net_qty,0) AS net_qty,COALESCE(s.net_notional_cents,0) AS net_notional_cents\nFROM tenants t LEFT JOIN totals s ON s.tenant_id=t.tenant_id;\n"
+        },
+        "obsolete_revisions_survive": {
+          "rejected": true,
+          "failed_fixtures": 17,
+          "example_fixture": "known_revision_moves_out",
+          "expected": [
+            [
+              "T1",
+              1,
+              3,
+              300
+            ]
+          ],
+          "actual": [
+            [
+              "T1",
+              1,
+              8,
+              800
+            ]
+          ],
+          "candidate_sql": "WITH logical_events AS (\n  SELECT DISTINCT event_id,tenant_id,book_id,order_id,amendment_no,effective_at,\n    recorded_at,revision,source_seq,operation,side,open_qty,limit_price_cents\n  FROM order_versions\n), known AS (\n  SELECT *, ROW_NUMBER() OVER (\n    PARTITION BY tenant_id,book_id,order_id,amendment_no\n    ORDER BY recorded_at DESC,revision DESC,source_seq DESC\n  ) AS revision_rank\n  FROM logical_events WHERE recorded_at <= :recorded_cutoff\n), effective AS (\n  SELECT *, ROW_NUMBER() OVER (\n    PARTITION BY tenant_id,book_id,order_id\n    ORDER BY effective_at DESC,amendment_no DESC\n  ) AS order_rank\n  FROM known WHERE effective_at <= :effective_cutoff\n), active AS (\n  SELECT e.* FROM effective e\n  JOIN reporting_books b ON b.tenant_id=e.tenant_id AND b.book_id=e.book_id\n  WHERE order_rank=1 AND operation='UPSERT'\n), totals AS (\n  SELECT tenant_id,COUNT(*) AS active_order_count,\n    SUM(CASE WHEN side='BUY' THEN open_qty ELSE -open_qty END) AS net_qty,\n    SUM(CASE WHEN side='BUY' THEN open_qty*limit_price_cents ELSE -open_qty*limit_price_cents END) AS net_notional_cents\n  FROM active GROUP BY tenant_id\n), tenants AS (SELECT DISTINCT tenant_id FROM reporting_books)\nSELECT t.tenant_id,COALESCE(s.active_order_count,0) AS active_order_count,\n  COALESCE(s.net_qty,0) AS net_qty,COALESCE(s.net_notional_cents,0) AS net_notional_cents\nFROM tenants t LEFT JOIN totals s ON s.tenant_id=t.tenant_id;\n"
+        },
+        "delete_removed_before_meaning": {
+          "rejected": true,
+          "failed_fixtures": 13,
+          "example_fixture": "withdrawn_order_empty_tenant",
+          "expected": [
+            [
+              "T1",
+              0,
+              0,
+              0
+            ]
+          ],
+          "actual": [
+            [
+              "T1",
+              1,
+              3,
+              300
+            ]
+          ],
+          "candidate_sql": "WITH logical_events AS (\n  SELECT DISTINCT event_id,tenant_id,book_id,order_id,amendment_no,effective_at,\n    recorded_at,revision,source_seq,operation,side,open_qty,limit_price_cents\n  FROM order_versions WHERE operation='UPSERT'\n), known AS (\n  SELECT *, ROW_NUMBER() OVER (\n    PARTITION BY tenant_id,book_id,order_id,amendment_no\n    ORDER BY recorded_at DESC,revision DESC,source_seq DESC\n  ) AS revision_rank\n  FROM logical_events WHERE recorded_at <= :recorded_cutoff\n), effective AS (\n  SELECT *, ROW_NUMBER() OVER (\n    PARTITION BY tenant_id,book_id,order_id\n    ORDER BY effective_at DESC,amendment_no DESC\n  ) AS order_rank\n  FROM known WHERE revision_rank=1 AND effective_at <= :effective_cutoff\n), active AS (\n  SELECT e.* FROM effective e\n  JOIN reporting_books b ON b.tenant_id=e.tenant_id AND b.book_id=e.book_id\n  WHERE order_rank=1 AND operation='UPSERT'\n), totals AS (\n  SELECT tenant_id,COUNT(*) AS active_order_count,\n    SUM(CASE WHEN side='BUY' THEN open_qty ELSE -open_qty END) AS net_qty,\n    SUM(CASE WHEN side='BUY' THEN open_qty*limit_price_cents ELSE -open_qty*limit_price_cents END) AS net_notional_cents\n  FROM active GROUP BY tenant_id\n), tenants AS (SELECT DISTINCT tenant_id FROM reporting_books)\nSELECT t.tenant_id,COALESCE(s.active_order_count,0) AS active_order_count,\n  COALESCE(s.net_qty,0) AS net_qty,COALESCE(s.net_notional_cents,0) AS net_notional_cents\nFROM tenants t LEFT JOIN totals s ON s.tenant_id=t.tenant_id;\n"
+        },
+        "all_amendments_aggregated": {
+          "rejected": true,
+          "failed_fixtures": 16,
+          "example_fixture": "withdrawn_order_empty_tenant",
+          "expected": [
+            [
+              "T1",
+              0,
+              0,
+              0
+            ]
+          ],
+          "actual": [
+            [
+              "T1",
+              1,
+              3,
+              300
+            ]
+          ],
+          "candidate_sql": "WITH logical_events AS (\n  SELECT DISTINCT event_id,tenant_id,book_id,order_id,amendment_no,effective_at,\n    recorded_at,revision,source_seq,operation,side,open_qty,limit_price_cents\n  FROM order_versions\n), known AS (\n  SELECT *, ROW_NUMBER() OVER (\n    PARTITION BY tenant_id,book_id,order_id,amendment_no\n    ORDER BY recorded_at DESC,revision DESC,source_seq DESC\n  ) AS revision_rank\n  FROM logical_events WHERE recorded_at <= :recorded_cutoff\n), effective AS (\n  SELECT *, ROW_NUMBER() OVER (\n    PARTITION BY tenant_id,book_id,order_id\n    ORDER BY effective_at DESC,amendment_no DESC\n  ) AS order_rank\n  FROM known WHERE revision_rank=1 AND effective_at <= :effective_cutoff\n), active AS (\n  SELECT e.* FROM effective e\n  JOIN reporting_books b ON b.tenant_id=e.tenant_id AND b.book_id=e.book_id\n  WHERE operation='UPSERT'\n), totals AS (\n  SELECT tenant_id,COUNT(*) AS active_order_count,\n    SUM(CASE WHEN side='BUY' THEN open_qty ELSE -open_qty END) AS net_qty,\n    SUM(CASE WHEN side='BUY' THEN open_qty*limit_price_cents ELSE -open_qty*limit_price_cents END) AS net_notional_cents\n  FROM active GROUP BY tenant_id\n), tenants AS (SELECT DISTINCT tenant_id FROM reporting_books)\nSELECT t.tenant_id,COALESCE(s.active_order_count,0) AS active_order_count,\n  COALESCE(s.net_qty,0) AS net_qty,COALESCE(s.net_notional_cents,0) AS net_notional_cents\nFROM tenants t LEFT JOIN totals s ON s.tenant_id=t.tenant_id;\n"
+        },
+        "knowledge_leak": {
+          "rejected": true,
+          "failed_fixtures": 8,
+          "example_fixture": "unknown_delete",
+          "expected": [
+            [
+              "T1",
+              1,
+              3,
+              300
+            ]
+          ],
+          "actual": [
+            [
+              "T1",
+              0,
+              0,
+              0
+            ]
+          ],
+          "candidate_sql": "WITH logical_events AS (\n  SELECT DISTINCT event_id,tenant_id,book_id,order_id,amendment_no,effective_at,\n    recorded_at,revision,source_seq,operation,side,open_qty,limit_price_cents\n  FROM order_versions\n), known AS (\n  SELECT *, ROW_NUMBER() OVER (\n    PARTITION BY tenant_id,book_id,order_id,amendment_no\n    ORDER BY recorded_at DESC,revision DESC,source_seq DESC\n  ) AS revision_rank\n  FROM logical_events\n), effective AS (\n  SELECT *, ROW_NUMBER() OVER (\n    PARTITION BY tenant_id,book_id,order_id\n    ORDER BY effective_at DESC,amendment_no DESC\n  ) AS order_rank\n  FROM known WHERE revision_rank=1 AND effective_at <= :effective_cutoff\n), active AS (\n  SELECT e.* FROM effective e\n  JOIN reporting_books b ON b.tenant_id=e.tenant_id AND b.book_id=e.book_id\n  WHERE order_rank=1 AND operation='UPSERT'\n), totals AS (\n  SELECT tenant_id,COUNT(*) AS active_order_count,\n    SUM(CASE WHEN side='BUY' THEN open_qty ELSE -open_qty END) AS net_qty,\n    SUM(CASE WHEN side='BUY' THEN open_qty*limit_price_cents ELSE -open_qty*limit_price_cents END) AS net_notional_cents\n  FROM active GROUP BY tenant_id\n), tenants AS (SELECT DISTINCT tenant_id FROM reporting_books)\nSELECT t.tenant_id,COALESCE(s.active_order_count,0) AS active_order_count,\n  COALESCE(s.net_qty,0) AS net_qty,COALESCE(s.net_notional_cents,0) AS net_notional_cents\nFROM tenants t LEFT JOIN totals s ON s.tenant_id=t.tenant_id;\n"
+        },
+        "scope_loses_tenant": {
+          "rejected": true,
+          "failed_fixtures": 14,
+          "example_fixture": "composite_order_identity",
+          "expected": [
+            [
+              "T1",
+              2,
+              8,
+              800
+            ],
+            [
+              "T2",
+              1,
+              7,
+              700
+            ]
+          ],
+          "actual": [
+            [
+              "T1",
+              2,
+              8,
+              800
+            ],
+            [
+              "T2",
+              0,
+              0,
+              0
+            ]
+          ],
+          "candidate_sql": "WITH logical_events AS (\n  SELECT DISTINCT event_id,tenant_id,book_id,order_id,amendment_no,effective_at,\n    recorded_at,revision,source_seq,operation,side,open_qty,limit_price_cents\n  FROM order_versions\n), known AS (\n  SELECT *, ROW_NUMBER() OVER (\n    PARTITION BY book_id,order_id,amendment_no\n    ORDER BY recorded_at DESC,revision DESC,source_seq DESC\n  ) AS revision_rank\n  FROM logical_events WHERE recorded_at <= :recorded_cutoff\n), effective AS (\n  SELECT *, ROW_NUMBER() OVER (\n    PARTITION BY book_id,order_id\n    ORDER BY effective_at DESC,amendment_no DESC\n  ) AS order_rank\n  FROM known WHERE revision_rank=1 AND effective_at <= :effective_cutoff\n), active AS (\n  SELECT e.* FROM effective e\n  JOIN reporting_books b ON b.tenant_id=e.tenant_id AND b.book_id=e.book_id\n  WHERE order_rank=1 AND operation='UPSERT'\n), totals AS (\n  SELECT tenant_id,COUNT(*) AS active_order_count,\n    SUM(CASE WHEN side='BUY' THEN open_qty ELSE -open_qty END) AS net_qty,\n    SUM(CASE WHEN side='BUY' THEN open_qty*limit_price_cents ELSE -open_qty*limit_price_cents END) AS net_notional_cents\n  FROM active GROUP BY tenant_id\n), tenants AS (SELECT DISTINCT tenant_id FROM reporting_books)\nSELECT t.tenant_id,COALESCE(s.active_order_count,0) AS active_order_count,\n  COALESCE(s.net_qty,0) AS net_qty,COALESCE(s.net_notional_cents,0) AS net_notional_cents\nFROM tenants t LEFT JOIN totals s ON s.tenant_id=t.tenant_id;\n"
+        },
+        "scope_loses_book": {
+          "rejected": true,
+          "failed_fixtures": 16,
+          "example_fixture": "composite_order_identity",
+          "expected": [
+            [
+              "T1",
+              2,
+              8,
+              800
+            ],
+            [
+              "T2",
+              1,
+              7,
+              700
+            ]
+          ],
+          "actual": [
+            [
+              "T1",
+              1,
+              3,
+              300
+            ],
+            [
+              "T2",
+              1,
+              7,
+              700
+            ]
+          ],
+          "candidate_sql": "WITH logical_events AS (\n  SELECT DISTINCT event_id,tenant_id,book_id,order_id,amendment_no,effective_at,\n    recorded_at,revision,source_seq,operation,side,open_qty,limit_price_cents\n  FROM order_versions\n), known AS (\n  SELECT *, ROW_NUMBER() OVER (\n    PARTITION BY tenant_id,order_id,amendment_no\n    ORDER BY recorded_at DESC,revision DESC,source_seq DESC\n  ) AS revision_rank\n  FROM logical_events WHERE recorded_at <= :recorded_cutoff\n), effective AS (\n  SELECT *, ROW_NUMBER() OVER (\n    PARTITION BY tenant_id,order_id\n    ORDER BY effective_at DESC,amendment_no DESC\n  ) AS order_rank\n  FROM known WHERE revision_rank=1 AND effective_at <= :effective_cutoff\n), active AS (\n  SELECT e.* FROM effective e\n  JOIN reporting_books b ON b.tenant_id=e.tenant_id AND b.book_id=e.book_id\n  WHERE order_rank=1 AND operation='UPSERT'\n), totals AS (\n  SELECT tenant_id,COUNT(*) AS active_order_count,\n    SUM(CASE WHEN side='BUY' THEN open_qty ELSE -open_qty END) AS net_qty,\n    SUM(CASE WHEN side='BUY' THEN open_qty*limit_price_cents ELSE -open_qty*limit_price_cents END) AS net_notional_cents\n  FROM active GROUP BY tenant_id\n), tenants AS (SELECT DISTINCT tenant_id FROM reporting_books)\nSELECT t.tenant_id,COALESCE(s.active_order_count,0) AS active_order_count,\n  COALESCE(s.net_qty,0) AS net_qty,COALESCE(s.net_notional_cents,0) AS net_notional_cents\nFROM tenants t LEFT JOIN totals s ON s.tenant_id=t.tenant_id;\n"
+        },
+        "roster_join_loses_book": {
+          "rejected": true,
+          "failed_fixtures": 18,
+          "example_fixture": "composite_order_identity",
+          "expected": [
+            [
+              "T1",
+              2,
+              8,
+              800
+            ],
+            [
+              "T2",
+              1,
+              7,
+              700
+            ]
+          ],
+          "actual": [
+            [
+              "T1",
+              4,
+              16,
+              1600
+            ],
+            [
+              "T2",
+              1,
+              7,
+              700
+            ]
+          ],
+          "candidate_sql": "WITH logical_events AS (\n  SELECT DISTINCT event_id,tenant_id,book_id,order_id,amendment_no,effective_at,\n    recorded_at,revision,source_seq,operation,side,open_qty,limit_price_cents\n  FROM order_versions\n), known AS (\n  SELECT *, ROW_NUMBER() OVER (\n    PARTITION BY tenant_id,book_id,order_id,amendment_no\n    ORDER BY recorded_at DESC,revision DESC,source_seq DESC\n  ) AS revision_rank\n  FROM logical_events WHERE recorded_at <= :recorded_cutoff\n), effective AS (\n  SELECT *, ROW_NUMBER() OVER (\n    PARTITION BY tenant_id,book_id,order_id\n    ORDER BY effective_at DESC,amendment_no DESC\n  ) AS order_rank\n  FROM known WHERE revision_rank=1 AND effective_at <= :effective_cutoff\n), active AS (\n  SELECT e.* FROM effective e\n  JOIN reporting_books b ON b.tenant_id=e.tenant_id\n  WHERE order_rank=1 AND operation='UPSERT'\n), totals AS (\n  SELECT tenant_id,COUNT(*) AS active_order_count,\n    SUM(CASE WHEN side='BUY' THEN open_qty ELSE -open_qty END) AS net_qty,\n    SUM(CASE WHEN side='BUY' THEN open_qty*limit_price_cents ELSE -open_qty*limit_price_cents END) AS net_notional_cents\n  FROM active GROUP BY tenant_id\n), tenants AS (SELECT DISTINCT tenant_id FROM reporting_books)\nSELECT t.tenant_id,COALESCE(s.active_order_count,0) AS active_order_count,\n  COALESCE(s.net_qty,0) AS net_qty,COALESCE(s.net_notional_cents,0) AS net_notional_cents\nFROM tenants t LEFT JOIN totals s ON s.tenant_id=t.tenant_id;\n"
+        },
+        "empty_tenants_dropped": {
+          "rejected": true,
+          "failed_fixtures": 19,
+          "example_fixture": "listed_tenants_without_orders",
+          "expected": [
+            [
+              "T1",
+              0,
+              0,
+              0
+            ],
+            [
+              "T2",
+              0,
+              0,
+              0
+            ]
+          ],
+          "actual": [],
+          "candidate_sql": "WITH logical_events AS (\n  SELECT DISTINCT event_id,tenant_id,book_id,order_id,amendment_no,effective_at,\n    recorded_at,revision,source_seq,operation,side,open_qty,limit_price_cents\n  FROM order_versions\n), known AS (\n  SELECT *, ROW_NUMBER() OVER (\n    PARTITION BY tenant_id,book_id,order_id,amendment_no\n    ORDER BY recorded_at DESC,revision DESC,source_seq DESC\n  ) AS revision_rank\n  FROM logical_events WHERE recorded_at <= :recorded_cutoff\n), effective AS (\n  SELECT *, ROW_NUMBER() OVER (\n    PARTITION BY tenant_id,book_id,order_id\n    ORDER BY effective_at DESC,amendment_no DESC\n  ) AS order_rank\n  FROM known WHERE revision_rank=1 AND effective_at <= :effective_cutoff\n), active AS (\n  SELECT e.* FROM effective e\n  JOIN reporting_books b ON b.tenant_id=e.tenant_id AND b.book_id=e.book_id\n  WHERE order_rank=1 AND operation='UPSERT'\n), totals AS (\n  SELECT tenant_id,COUNT(*) AS active_order_count,\n    SUM(CASE WHEN side='BUY' THEN open_qty ELSE -open_qty END) AS net_qty,\n    SUM(CASE WHEN side='BUY' THEN open_qty*limit_price_cents ELSE -open_qty*limit_price_cents END) AS net_notional_cents\n  FROM active GROUP BY tenant_id\n), tenants AS (SELECT DISTINCT tenant_id FROM reporting_books)\nSELECT t.tenant_id,COALESCE(s.active_order_count,0) AS active_order_count,\n  COALESCE(s.net_qty,0) AS net_qty,COALESCE(s.net_notional_cents,0) AS net_notional_cents\nFROM tenants t JOIN totals s ON s.tenant_id=t.tenant_id;\n"
+        },
+        "sell_sign_ignored": {
+          "rejected": true,
+          "failed_fixtures": 16,
+          "example_fixture": "single_sell",
+          "expected": [
+            [
+              "T1",
+              1,
+              -4,
+              -600
+            ]
+          ],
+          "actual": [
+            [
+              "T1",
+              1,
+              4,
+              600
+            ]
+          ],
+          "candidate_sql": "WITH logical_events AS (\n  SELECT DISTINCT event_id,tenant_id,book_id,order_id,amendment_no,effective_at,\n    recorded_at,revision,source_seq,operation,side,open_qty,limit_price_cents\n  FROM order_versions\n), known AS (\n  SELECT *, ROW_NUMBER() OVER (\n    PARTITION BY tenant_id,book_id,order_id,amendment_no\n    ORDER BY recorded_at DESC,revision DESC,source_seq DESC\n  ) AS revision_rank\n  FROM logical_events WHERE recorded_at <= :recorded_cutoff\n), effective AS (\n  SELECT *, ROW_NUMBER() OVER (\n    PARTITION BY tenant_id,book_id,order_id\n    ORDER BY effective_at DESC,amendment_no DESC\n  ) AS order_rank\n  FROM known WHERE revision_rank=1 AND effective_at <= :effective_cutoff\n), active AS (\n  SELECT e.* FROM effective e\n  JOIN reporting_books b ON b.tenant_id=e.tenant_id AND b.book_id=e.book_id\n  WHERE order_rank=1 AND operation='UPSERT'\n), totals AS (\n  SELECT tenant_id,COUNT(*) AS active_order_count,\n    SUM(CASE WHEN side='BUY' THEN open_qty ELSE open_qty END) AS net_qty,\n    SUM(CASE WHEN side='BUY' THEN open_qty*limit_price_cents ELSE open_qty*limit_price_cents END) AS net_notional_cents\n  FROM active GROUP BY tenant_id\n), tenants AS (SELECT DISTINCT tenant_id FROM reporting_books)\nSELECT t.tenant_id,COALESCE(s.active_order_count,0) AS active_order_count,\n  COALESCE(s.net_qty,0) AS net_qty,COALESCE(s.net_notional_cents,0) AS net_notional_cents\nFROM tenants t LEFT JOIN totals s ON s.tenant_id=t.tenant_id;\n"
+        },
+        "zero_orders_dropped": {
+          "rejected": true,
+          "failed_fixtures": 4,
+          "example_fixture": "zero_quantity_still_active",
+          "expected": [
+            [
+              "T1",
+              1,
+              0,
+              0
+            ]
+          ],
+          "actual": [
+            [
+              "T1",
+              0,
+              0,
+              0
+            ]
+          ],
+          "candidate_sql": "WITH logical_events AS (\n  SELECT DISTINCT event_id,tenant_id,book_id,order_id,amendment_no,effective_at,\n    recorded_at,revision,source_seq,operation,side,open_qty,limit_price_cents\n  FROM order_versions\n), known AS (\n  SELECT *, ROW_NUMBER() OVER (\n    PARTITION BY tenant_id,book_id,order_id,amendment_no\n    ORDER BY recorded_at DESC,revision DESC,source_seq DESC\n  ) AS revision_rank\n  FROM logical_events WHERE recorded_at <= :recorded_cutoff\n), effective AS (\n  SELECT *, ROW_NUMBER() OVER (\n    PARTITION BY tenant_id,book_id,order_id\n    ORDER BY effective_at DESC,amendment_no DESC\n  ) AS order_rank\n  FROM known WHERE revision_rank=1 AND effective_at <= :effective_cutoff\n), active AS (\n  SELECT e.* FROM effective e\n  JOIN reporting_books b ON b.tenant_id=e.tenant_id AND b.book_id=e.book_id\n  WHERE open_qty>0 AND order_rank=1 AND operation='UPSERT'\n), totals AS (\n  SELECT tenant_id,COUNT(*) AS active_order_count,\n    SUM(CASE WHEN side='BUY' THEN open_qty ELSE -open_qty END) AS net_qty,\n    SUM(CASE WHEN side='BUY' THEN open_qty*limit_price_cents ELSE -open_qty*limit_price_cents END) AS net_notional_cents\n  FROM active GROUP BY tenant_id\n), tenants AS (SELECT DISTINCT tenant_id FROM reporting_books)\nSELECT t.tenant_id,COALESCE(s.active_order_count,0) AS active_order_count,\n  COALESCE(s.net_qty,0) AS net_qty,COALESCE(s.net_notional_cents,0) AS net_notional_cents\nFROM tenants t LEFT JOIN totals s ON s.tenant_id=t.tenant_id;\n"
+        },
+        "revision_outranks_recorded_time": {
+          "rejected": true,
+          "failed_fixtures": 14,
+          "example_fixture": "recorded_clock_beats_revision",
+          "expected": [
+            [
+              "T1",
+              1,
+              4,
+              400
+            ]
+          ],
+          "actual": [
+            [
+              "T1",
+              1,
+              99,
+              9900
+            ]
+          ],
+          "candidate_sql": "WITH logical_events AS (\n  SELECT DISTINCT event_id,tenant_id,book_id,order_id,amendment_no,effective_at,\n    recorded_at,revision,source_seq,operation,side,open_qty,limit_price_cents\n  FROM order_versions\n), known AS (\n  SELECT *, ROW_NUMBER() OVER (\n    PARTITION BY tenant_id,book_id,order_id,amendment_no\n    ORDER BY revision DESC,recorded_at DESC,source_seq DESC\n  ) AS revision_rank\n  FROM logical_events WHERE recorded_at <= :recorded_cutoff\n), effective AS (\n  SELECT *, ROW_NUMBER() OVER (\n    PARTITION BY tenant_id,book_id,order_id\n    ORDER BY effective_at DESC,amendment_no DESC\n  ) AS order_rank\n  FROM known WHERE revision_rank=1 AND effective_at <= :effective_cutoff\n), active AS (\n  SELECT e.* FROM effective e\n  JOIN reporting_books b ON b.tenant_id=e.tenant_id AND b.book_id=e.book_id\n  WHERE order_rank=1 AND operation='UPSERT'\n), totals AS (\n  SELECT tenant_id,COUNT(*) AS active_order_count,\n    SUM(CASE WHEN side='BUY' THEN open_qty ELSE -open_qty END) AS net_qty,\n    SUM(CASE WHEN side='BUY' THEN open_qty*limit_price_cents ELSE -open_qty*limit_price_cents END) AS net_notional_cents\n  FROM active GROUP BY tenant_id\n), tenants AS (SELECT DISTINCT tenant_id FROM reporting_books)\nSELECT t.tenant_id,COALESCE(s.active_order_count,0) AS active_order_count,\n  COALESCE(s.net_qty,0) AS net_qty,COALESCE(s.net_notional_cents,0) AS net_notional_cents\nFROM tenants t LEFT JOIN totals s ON s.tenant_id=t.tenant_id;\n"
+        },
+        "source_sequence_missing": {
+          "rejected": true,
+          "failed_fixtures": 7,
+          "example_fixture": "source_sequence_tie",
+          "expected": [
+            [
+              "T1",
+              1,
+              4,
+              400
+            ]
+          ],
+          "actual": [
+            [
+              "T1",
+              1,
+              3,
+              300
+            ]
+          ],
+          "candidate_sql": "WITH logical_events AS (\n  SELECT DISTINCT event_id,tenant_id,book_id,order_id,amendment_no,effective_at,\n    recorded_at,revision,source_seq,operation,side,open_qty,limit_price_cents\n  FROM order_versions\n), known AS (\n  SELECT *, ROW_NUMBER() OVER (\n    PARTITION BY tenant_id,book_id,order_id,amendment_no\n    ORDER BY recorded_at DESC,revision DESC\n  ) AS revision_rank\n  FROM logical_events WHERE recorded_at <= :recorded_cutoff\n), effective AS (\n  SELECT *, ROW_NUMBER() OVER (\n    PARTITION BY tenant_id,book_id,order_id\n    ORDER BY effective_at DESC,amendment_no DESC\n  ) AS order_rank\n  FROM known WHERE revision_rank=1 AND effective_at <= :effective_cutoff\n), active AS (\n  SELECT e.* FROM effective e\n  JOIN reporting_books b ON b.tenant_id=e.tenant_id AND b.book_id=e.book_id\n  WHERE order_rank=1 AND operation='UPSERT'\n), totals AS (\n  SELECT tenant_id,COUNT(*) AS active_order_count,\n    SUM(CASE WHEN side='BUY' THEN open_qty ELSE -open_qty END) AS net_qty,\n    SUM(CASE WHEN side='BUY' THEN open_qty*limit_price_cents ELSE -open_qty*limit_price_cents END) AS net_notional_cents\n  FROM active GROUP BY tenant_id\n), tenants AS (SELECT DISTINCT tenant_id FROM reporting_books)\nSELECT t.tenant_id,COALESCE(s.active_order_count,0) AS active_order_count,\n  COALESCE(s.net_qty,0) AS net_qty,COALESCE(s.net_notional_cents,0) AS net_notional_cents\nFROM tenants t LEFT JOIN totals s ON s.tenant_id=t.tenant_id;\n"
+        },
+        "duplicate_events_rank_together": {
+          "rejected": true,
+          "failed_fixtures": 14,
+          "example_fixture": "duplicate_delivery_no_double_count",
+          "expected": [
+            [
+              "T1",
+              1,
+              3,
+              300
+            ]
+          ],
+          "actual": [
+            [
+              "T1",
+              2,
+              6,
+              600
+            ]
+          ],
+          "candidate_sql": "WITH logical_events AS (\n  SELECT event_id,tenant_id,book_id,order_id,amendment_no,effective_at,\n    recorded_at,revision,source_seq,operation,side,open_qty,limit_price_cents\n  FROM order_versions\n), known AS (\n  SELECT *, RANK() OVER (\n    PARTITION BY tenant_id,book_id,order_id,amendment_no\n    ORDER BY recorded_at DESC,revision DESC,source_seq DESC\n  ) AS revision_rank\n  FROM logical_events WHERE recorded_at <= :recorded_cutoff\n), effective AS (\n  SELECT *, RANK() OVER (\n    PARTITION BY tenant_id,book_id,order_id\n    ORDER BY effective_at DESC,amendment_no DESC\n  ) AS order_rank\n  FROM known WHERE revision_rank=1 AND effective_at <= :effective_cutoff\n), active AS (\n  SELECT e.* FROM effective e\n  JOIN reporting_books b ON b.tenant_id=e.tenant_id AND b.book_id=e.book_id\n  WHERE order_rank=1 AND operation='UPSERT'\n), totals AS (\n  SELECT tenant_id,COUNT(*) AS active_order_count,\n    SUM(CASE WHEN side='BUY' THEN open_qty ELSE -open_qty END) AS net_qty,\n    SUM(CASE WHEN side='BUY' THEN open_qty*limit_price_cents ELSE -open_qty*limit_price_cents END) AS net_notional_cents\n  FROM active GROUP BY tenant_id\n), tenants AS (SELECT DISTINCT tenant_id FROM reporting_books)\nSELECT t.tenant_id,COALESCE(s.active_order_count,0) AS active_order_count,\n  COALESCE(s.net_qty,0) AS net_qty,COALESCE(s.net_notional_cents,0) AS net_notional_cents\nFROM tenants t LEFT JOIN totals s ON s.tenant_id=t.tenant_id;\n"
+        }
+      },
+      "participant_review": {
+        "status": "pending"
+      },
+      "artifact_hashes": {
+        "tasks/t06/metadata.json": "492aadc5ac9044278510c560eff8178694851bdaa442913d161965ebf0d9043d",
+        "tasks/t06/prompt.md": "9b182904554f10ec4df32ff68d226efa3ca8687fc575f201c859182c0af1975b",
+        "tasks/t06/schema.sql": "aa40410007480cf1dcf512cbcb1b1d46036b39be626f8d115556e7ecda9f2835",
+        "tasks/t06/fixtures/cases.json": "aa7b951c2b75d5258ef483097e4b7c38886c84a217f9b628c7d5966835318718",
+        "graders/__init__.py": "9056f5127af1cc738a03df4a1dfd939fac6859c7ab92caea26a44a378a048333",
+        "graders/normalize.py": "cd139c464de09a058e7759150130dcd3b354a68f605ef0e4cbd9a835acc9db61",
+        "graders/sql_outcome.py": "b5e94d0ea7f6a90b706aac56a6b9c32e40686b3fa1a74885683267a935ef4b26",
+        "harness/__init__.py": "abccfab8bf5d2e55b2954f7ff89aa823fbe2e8ea83a242173c6c0f6ad2d6df25",
+        "harness/credentials.py": "4e12e683055abcee3a6a9e40ee18849b6cedda87cb0bc7ab10d8a3aefa2f081d",
+        "harness/providers.py": "b1f7ebe3c6f7f05a25972f09dac6a30d5cecfc58b19d3737efa5469be57967e2",
+        "harness/replay.py": "b138976d919d709e2ad8ea78b65266628b6c35887206efddb11b055c79ede6dc",
+        "harness/run.py": "281d566fd08d349700c98e779e8d9b3da23e8f4fbe5c229e04aa5ccab77ec658",
+        "harness/tasks.py": "3ad1a72614204385d987ee2e3d1157413695599e19214b650aa45ab9dc1938ed",
+        "reference/t06/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "reference/t06/oracle.py": "2cae12c09281675091bda491d93e9cab8564888e8d8417f3b34b124d19adc6d2",
+        "reference/t06/solution.sql": "6e1241bf6b4d2ef2411d7518ba192be49f65d1be90f5d7839ded76e8928d0e30",
+        "configs/models.json": "2e895df0d9af44dfab1e02a933804d5ebfe4377978432c7554d3bde0678496e5",
+        "configs/experiment.json": "3d4df608f74256e84b1107fa4ffdd4fd31523c9e6b90576199c6ad178050535b",
+        "pyproject.toml": "ffd5d3c7f1930aef7c8b7786a39c0f9bdcae7c6f78670b510cac31ac2a7f0927",
+        ".python-version": "02e735b3dfe1c32833eb550b7ff8ffa17f5f2bc3fa1e7bae61a8f5a3883ce398",
+        "uv.lock": "dbc9564f9e47acd819f90a51d73f9b3359c58c72f546f0351c502a2f207f9477"
+      }
+    }
+  },
+  "unit_tests": {
+    "tests": 128,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "diagnostic_attempts": [
+    {
+      "provider": "openai",
+      "requested_model": "gpt-6-astra",
+      "phase": "diagnostic",
+      "status": "api_error",
+      "error": "HTTP 429; request_id=req_7e6201470dd443cc893dd1f65de38440",
+      "elapsed_seconds": 0.543232
+    },
+    {
+      "provider": "openai",
+      "requested_model": "gpt-6-luna",
+      "phase": "diagnostic",
+      "status": "api_error",
+      "error": "HTTP 429; request_id=req_6094f19df8994bc1a33c0dbb7207841f",
+      "elapsed_seconds": 1.376895
+    },
+    {
+      "provider": "openai",
+      "requested_model": "gpt-6.1-sol",
+      "phase": "diagnostic",
+      "status": "api_error",
+      "error": "HTTP 429; request_id=req_09a33940b2c941f8aebe5dcf03e6b6b3",
+      "elapsed_seconds": 1.376492
+    }
+  ]
+}
