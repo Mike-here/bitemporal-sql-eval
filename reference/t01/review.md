@@ -1,6 +1,6 @@
 # Participant review: t01
 
-Status: PARTICIPANT REVIEW RECORDED on November 8, 2026.
+Status: PARTICIPANT REVIEW RECORDED on November 3, 2026.
 
 Reviewer: the submitting participant, who reports experience in SQL optimization
 and financial order-book state engines. The participant explicitly confirmed
