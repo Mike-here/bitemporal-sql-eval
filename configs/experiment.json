@@ -9,6 +9,6 @@
   "primary_score": "A task attempt passes iff every fixture passes.",
   "diagnostic_score": "Fraction of fixtures passed, not independent task observations.",
   "retries": "No automatic retries. Transport/API failures remain recorded and separate from model failures.",
-  "human_review": "Pending participant review of each task, reference, oracle and grader.",
+  "human_review": "t01 participant review recorded on 2026-11-08 for prompt, SQL reference and Python oracle. See reference/t01/review.md for scope. Further task reviews and empirical analysis remain pending.",
   "live_runs_completed": 0
 }

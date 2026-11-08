@@ -31,7 +31,7 @@ def main():
                   fixtures=len(task.cases), manual_goldens=16, seeded_histories=24,
                   reference=reference.to_dict(), alternatives=alternatives, mutants=mutants,
                   artifact_hashes=task.artifact_hashes,
-                  human_review="pending", live_model_attempts=0)
+                  human_review=task.metadata["participant_review"], live_model_attempts=0)
     junit = ROOT / "results/local_validation/pytest.xml"
     if junit.exists():
         suites = ET.parse(junit).getroot().findall("testsuite")
@@ -45,7 +45,7 @@ def main():
     # real local execution and the model trials that have not happened yet.
     lines = ["# t01 automated verification checkpoint", "",
              f"Python {platform.python_version()}; SQLite {sqlite3.sqlite_version}.", "",
-             "No live model requests were made. Human review is pending.", "",
+             "No live model requests were made. Participant review of the t01 prompt and references was recorded on 2026-11-08; see reference/t01/review.md for scope.", "",
              f"- SQL reference: {len(task.cases)}/{len(task.cases)} fixtures match the independent Python oracle.",
              "- Manual golden expectations: 16/16 agree with both implementations.",
              "- Seeded histories: 24/24 agree.",

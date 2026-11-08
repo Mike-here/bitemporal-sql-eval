@@ -20,6 +20,17 @@ order-book state engines. No employer/client data is used; all fixtures are synt
 Only t01 is implemented. Later tasks require their own explicit contracts and
 distinct practitioner interactions; they must not merely clone t01 fixtures.
 
+## Prompt design decision from participant review (2026-11-08)
+
+t01 intentionally supplies an explicit eligibility/precedence recipe as baseline
+calibration. For t02–t06, state complete business semantics and invariants instead
+of a procedural SQL solution. Define visibility, identity, tombstone meaning,
+revision precedence, duplicate equivalence and aggregation/empty-group behavior
+where applicable, but leave the query's operation ordering to the model. Hidden
+fixtures may exercise stated rules; they must not introduce unstated requirements.
+Semantic interaction, rather than ambiguity, should supply the difficulty. The
+presence of headroom must be established empirically, not assumed from prompt style.
+
 ## Experimental discipline
 
 The requested high/partial frontier success and lower smaller-model success are

@@ -6,15 +6,16 @@ corrections make plausible SQL silently choose the wrong version, affecting
 reconciliation and historical order-book reports.
 
 **Status:** t01 implemented; t02–t06 planned. No live model trials have been run.
-Human review, empirical findings, submission description and video are pending.
+t01 participant review is recorded; further task reviews, empirical findings,
+submission description and video are pending.
 This checkpoint is not the final hackathon submission.
 
 ## Domain and expertise
 
 The participant reports strong SQL optimization and financial order-book state
 engine experience. All task data is newly generated synthetic data. The participant
-must personally audit each task, reference answer and grader before submission;
-see `reference/t01/review.md`.
+reviewed t01's prompt, SQL reference and Python oracle on November 8, 2026;
+see `reference/t01/review.md` for the scope and remaining verification items.
 
 ## Setup and offline verification
 
@@ -108,10 +109,15 @@ Python, SQLite, pytest and httpx are third-party dependencies with their own lic
 Codex drafted the code, task language, synthetic fixtures, SQL reference, Python
 oracle and initial documentation. Automated cross-checks validate the two independent
 implementations against explicit goldens and test deliberately wrong queries.
-Participant human review is pending and must not be represented as completed.
+Participant review of t01's prompt, SQL reference and Python oracle was recorded
+on November 8, 2026. The review retained the intentionally explicit t01 baseline
+and directed later prompts to express business semantics without giving a SQL
+execution recipe. Ascending oracle replay was checked: the last per-order
+assignment retains the newest state. Further review scope is tracked explicitly
+in `reference/t01/review.md`.
 
 ## Submission materials still required
 
-Human signoff; five further tasks; frozen multi-trial model results and failure
+Remaining human verification; five further tasks; frozen multi-trial model results and failure
 analysis; approximate live cost/runtime; final short description; a <=5 minute
 video link that opens without permission; final clean-environment ZIP verification.

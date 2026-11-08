@@ -1,6 +1,6 @@
 {
   "kind": "local_grader_validation_NOT_model_results",
-  "created_at": "2026-11-08T21:19:28.454081+00:00",
+  "created_at": "2026-11-08T22:04:55.223564+00:00",
   "python": "3.13.9",
   "sqlite": "3.51.0",
   "fixtures": 40,
@@ -35593,7 +35593,7 @@
     }
   },
   "artifact_hashes": {
-    "tasks/t01/metadata.json": "454389074e545513c246df398be557ffdf0dec198819222d1586a0af10ea927a",
+    "tasks/t01/metadata.json": "339c5ad750b8430b6b6f2bc594c0d187d902652d284079d5d8888ca49c490b0b",
     "tasks/t01/prompt.md": "fc8dcbeb2f1535085a9a36bf1526152e030f9c1333028e83b5ad9fbddfc43642",
     "tasks/t01/schema.sql": "e2ab1f5a971f08081aa198720cc0c7ab55f65de3b4a548a84906c11a99a38793",
     "tasks/t01/fixtures/hand_cases.json": "44697c4342ff704af31048625707fb4aa5f06878a61d80932ece7a65afe015aa",
@@ -35607,18 +35607,27 @@
     "harness/run.py": "692fa6ad9f3da0fb982b318eb55649e791fdf2e7c94827973df8eef228e716f0",
     "harness/tasks.py": "82ad6e551c7af5b6fd90f884d1b1ac5516c13ad49eecd79cff4d9922e7681f36",
     "reference/t01/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "reference/t01/oracle.py": "de7ad2269a3be9637e9ee647811d832dd137ee199b37a5f6469df1e7345e7047",
+    "reference/t01/oracle.py": "cd65adf4e9cee2df7935ed29d8fa48ea34f0ba3370182467749de39941b65231",
     "reference/t01/solution.sql": "253aa906cd95bc0f9a52aef03d911974479e8b76dd6063134cba582fa09ee6d1",
     "configs/models.json": "22efb4ca93c5f55c2824f90a40aab01338e2f986a453c0c01e4d9efc23b1a9bc",
-    "configs/experiment.json": "71b11d30cc34eecb5a5f8f03ede44a35f66e7fcb7573aea2117776226d071055",
+    "configs/experiment.json": "01c6cf9497b2abb38752f33ca818d8f31cb67559b353ffe99bca78dd3035a9cb",
     "pyproject.toml": "ffd5d3c7f1930aef7c8b7786a39c0f9bdcae7c6f78670b510cac31ac2a7f0927",
     ".python-version": "02e735b3dfe1c32833eb550b7ff8ffa17f5f2bc3fa1e7bae61a8f5a3883ce398",
     "uv.lock": "dbc9564f9e47acd819f90a51d73f9b3359c58c72f546f0351c502a2f207f9477"
   },
-  "human_review": "pending",
+  "human_review": {
+    "status": "recorded",
+    "date": "2026-11-08",
+    "scope": [
+      "prompt",
+      "SQL reference",
+      "Python oracle"
+    ],
+    "record": "reference/t01/review.md"
+  },
   "live_model_attempts": 0,
   "unit_tests": {
-    "tests": 110,
+    "tests": 111,
     "failures": 0,
     "errors": 0,
     "skipped": 0
