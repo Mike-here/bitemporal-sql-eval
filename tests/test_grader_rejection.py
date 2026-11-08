@@ -1,4 +1,5 @@
 import pytest
+import json
 
 from graders.normalize import OutputContractError, extract_sql, normalize_rows
 from graders.sql_outcome import QueryExecutionError, execute_query, grade_sql
@@ -26,6 +27,18 @@ def test_sql_syntax_error_is_clean_failure(task):
     report = task.grade("SELECT broken FROM;")
     assert not report.passed
     assert {case.category for case in report.cases} == {"query_error"}
+
+
+@pytest.mark.parametrize("expression", ["CAST(symbol AS BLOB) AS symbol", "1e999 AS open_qty"])
+def test_invalid_sqlite_result_types_still_have_serializable_failure_logs(task, reference_sql, expression):
+    if "symbol" in expression:
+        query=reference_sql.replace("SELECT order_id, symbol, side",f"SELECT order_id, {expression}, side")
+    else:
+        query=reference_sql.replace("side, open_qty, limit_price_cents\nFROM ranked",f"side, {expression}, limit_price_cents\nFROM ranked")
+    report=task.grade(query)
+    assert not report.passed
+    assert any(case.category=="output_contract" for case in report.cases)
+    json.dumps(report.to_dict(),allow_nan=False)
 
 
 @pytest.mark.parametrize("values", [[None], ["10"], [10.5], [float("nan")], [float("inf")], [True]])

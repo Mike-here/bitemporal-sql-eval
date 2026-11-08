@@ -12,13 +12,24 @@ order-book state engines. No employer/client data is used; all fixtures are synt
 
 - t01: full-state revisions, two inclusive cutoffs, out-of-order corrections.
 - t02: tombstone precedence; do not resurrect an earlier active state.
-- t03: late retroactive corrections and historical knowledge visibility.
+- t03: late retroactive corrections to amendment identity, including changed effective timestamps.
 - t04: revision/sequence tie-breaks and idempotent duplicate ingestion.
 - t05: tenant/book composite identity and cancellation-key scope.
-- t06: snapshot-before-aggregation with specified empty/zero groups.
+- t06: scoped amendment restatements, duplicates and withdrawal states before signed exposure aggregation; specified roster/empty/zero groups.
 
-Only t01 is implemented. Later tasks require their own explicit contracts and
-distinct practitioner interactions; they must not merely clone t01 fixtures.
+All six tasks are implemented. t01 has participant review; t02–t06 await review.
+The later tasks use distinct practitioner interactions rather than cloned fixtures.
+
+## Prompt design decision from participant review (2026-11-08)
+
+t01 intentionally supplies an explicit eligibility/precedence recipe as baseline
+calibration. For t02–t06, state complete business semantics and invariants instead
+of a procedural SQL solution. Define visibility, identity, tombstone meaning,
+revision precedence, duplicate equivalence and aggregation/empty-group behavior
+where applicable, but leave the query's operation ordering to the model. Hidden
+fixtures may exercise stated rules; they must not introduce unstated requirements.
+Semantic interaction, rather than ambiguity, should supply the difficulty. The
+presence of headroom must be established empirically, not assumed from prompt style.
 
 ## Experimental discipline
 
@@ -35,6 +46,9 @@ fraction of tasks passed on every trial. Provider errors and incomplete outputs
 must be separately visible; report completion rate and end-to-end success as well
 as success conditional on completion. Do not silently retry them.
 
-One OpenAI family supports a scale comparison, not a claim about all frontier
-families. General correctness of arbitrary SQL is not proven by finite fixtures.
+The current matrix selects OpenAI Astra, Gemini 3.1 Pro Preview, and OpenAI Luna.
+Both replacement keys authenticate to their catalogs, but generation remains
+blocked by OpenAI exhausted credits and Gemini RESOURCE_EXHAUSTED. All six t01
+diagnostic attempts returned API errors, not model answers, and are not scores.
+General correctness of arbitrary SQL is not proven by finite fixtures.
 SQLite execution is a query-only boundary, not a general native-code sandbox.

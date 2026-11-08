@@ -1,0 +1,7 @@
+{
+  "kind": "setup_probe_not_benchmark_trial",
+  "timestamp": "2026-11-08T22:24:51.454426+00:00",
+  "model": "gpt-6-luna",
+  "status": "api_error",
+  "error": "HTTP 429; code=credit_balance_exhausted; type=insufficient_quota; request_id=req_c0660a5a5e9948a7aacef2e95f5ed296"
+}

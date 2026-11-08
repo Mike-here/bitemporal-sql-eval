@@ -1,6 +1,6 @@
 """Independent event-replay oracle: Python datetimes, no SQL or SQLite imports.
 
-AI-drafted; participant review is pending (see review.md).
+AI-drafted; participant review recorded on 2026-11-08 (see review.md).
 """
 
 from datetime import datetime
@@ -21,8 +21,10 @@ def solve(rows: Sequence[Mapping], parameters: Mapping) -> list[tuple]:
         if _instant(row["recorded_at"]) <= recorded_cutoff
         and _instant(row["effective_at"]) <= effective_cutoff
     ]
-    # Replay in business-time order, with corrections to the same business-time
-    # state applied in knowledge-time order. Later states overwrite earlier ones.
+    # Ascending + unconditional assignment is intentional: each order's LAST
+    # visited row has its greatest (effective_at, recorded_at) pair. That newest
+    # state overwrites older states. Reversing this sort without changing the
+    # loop would incorrectly leave the oldest state. Input order is irrelevant.
     visible.sort(key=lambda row: (_instant(row["effective_at"]), _instant(row["recorded_at"])))
     state = {}
     for row in visible:

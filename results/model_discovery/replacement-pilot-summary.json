@@ -1,0 +1,35 @@
+{
+  "kind": "replacement_key_diagnostic_pilot_not_model_scores",
+  "attempts": [
+    {
+      "provider": "openai",
+      "requested_model": "gpt-6-astra",
+      "phase": "diagnostic",
+      "status": "api_error",
+      "error": "HTTP 429; code=credit_balance_exhausted; type=insufficient_quota; request_id=req_379e156a7d36425fbd64d008f71575e5",
+      "elapsed_seconds": 1.172912
+    },
+    {
+      "provider": "gemini",
+      "requested_model": "gemini-3.1-pro-preview",
+      "phase": "diagnostic",
+      "status": "api_error",
+      "error": "HTTP 429; status=RESOURCE_EXHAUSTED; request_id=unavailable",
+      "elapsed_seconds": 0.141568
+    },
+    {
+      "provider": "openai",
+      "requested_model": "gpt-6-luna",
+      "phase": "diagnostic",
+      "status": "api_error",
+      "error": "HTTP 429; code=credit_balance_exhausted; type=insufficient_quota; request_id=req_85a84629df7149878aa332f73076e1f8",
+      "elapsed_seconds": 1.33462
+    }
+  ],
+  "catalog_authentication": {
+    "openai": "succeeded",
+    "gemini": "succeeded"
+  },
+  "graded_outputs": 0,
+  "formal_attempts": 0
+}

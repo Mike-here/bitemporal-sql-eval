@@ -1,0 +1,23 @@
+{
+  "id": "t02",
+  "title": "Withdrawal state and reopening",
+  "status": "implemented_pending_human_review",
+  "output_columns": [
+    "order_id",
+    "symbol",
+    "side",
+    "open_qty",
+    "limit_price_cents"
+  ],
+  "output_types": [
+    "text",
+    "text",
+    "text",
+    "integer",
+    "integer"
+  ],
+  "fixture_files": [
+    "fixtures/cases.json"
+  ],
+  "failure_hypothesis": "Dropping withdrawal versions before determining current state resurrects superseded orders."
+}

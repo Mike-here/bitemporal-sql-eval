@@ -1,0 +1,27 @@
+{
+  "id": "t05",
+  "title": "Tenant/book identity and current cancellation scope",
+  "status": "implemented_pending_human_review",
+  "output_columns": [
+    "tenant_id",
+    "book_id",
+    "order_id",
+    "symbol",
+    "side",
+    "open_qty",
+    "limit_price_cents"
+  ],
+  "output_types": [
+    "text",
+    "text",
+    "text",
+    "text",
+    "text",
+    "integer",
+    "integer"
+  ],
+  "fixture_files": [
+    "fixtures/cases.json"
+  ],
+  "failure_hypothesis": "Models may preserve order identity in a window but drop part of tenant/book identity in cancellation joins, or cancel obsolete rather than current state keys."
+}

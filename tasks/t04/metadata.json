@@ -1,0 +1,23 @@
+{
+  "id": "t04",
+  "title": "Source precedence and idempotent duplicate ingestion",
+  "status": "implemented_pending_human_review",
+  "output_columns": [
+    "order_id",
+    "symbol",
+    "side",
+    "open_qty",
+    "limit_price_cents"
+  ],
+  "output_types": [
+    "text",
+    "text",
+    "text",
+    "integer",
+    "integer"
+  ],
+  "fixture_files": [
+    "fixtures/cases.json"
+  ],
+  "failure_hypothesis": "Models may conflate storage order with source precedence or count repeated deliveries as independent states when timestamps tie."
+}

@@ -1,0 +1,21 @@
+{
+  "id": "t06",
+  "title": "Scoped historical net aggregation with restatements",
+  "status": "implemented_pending_human_review",
+  "output_columns": [
+    "tenant_id",
+    "active_order_count",
+    "net_qty",
+    "net_notional_cents"
+  ],
+  "output_types": [
+    "text",
+    "integer",
+    "integer",
+    "integer"
+  ],
+  "fixture_files": [
+    "fixtures/cases.json"
+  ],
+  "failure_hypothesis": "Models may aggregate deliveries or obsolete revisions instead of the reconstructed order snapshot, lose scoped identity, or omit listed tenants with empty/zero exposure."
+}

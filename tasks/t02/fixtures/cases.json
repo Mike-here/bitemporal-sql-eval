@@ -1,0 +1,4158 @@
+[
+  {
+    "name": "empty",
+    "parameters": {
+      "effective_cutoff": "2026-10-30T10:00:00Z",
+      "recorded_cutoff": "2026-10-30T12:00:00Z"
+    },
+    "tables": {
+      "order_versions": []
+    },
+    "expected": []
+  },
+  {
+    "name": "single_active",
+    "parameters": {
+      "effective_cutoff": "2026-10-30T10:00:00Z",
+      "recorded_cutoff": "2026-10-30T12:00:00Z"
+    },
+    "tables": {
+      "order_versions": [
+        {
+          "version_id": 1,
+          "order_id": "A",
+          "effective_at": "2026-10-30T08:00:00Z",
+          "recorded_at": "2026-10-30T08:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 10,
+          "limit_price_cents": 100
+        }
+      ]
+    },
+    "expected": [
+      [
+        "A",
+        "XYZ",
+        "BUY",
+        10,
+        100
+      ]
+    ]
+  },
+  {
+    "name": "visible_withdrawal",
+    "parameters": {
+      "effective_cutoff": "2026-10-30T10:00:00Z",
+      "recorded_cutoff": "2026-10-30T12:00:00Z"
+    },
+    "tables": {
+      "order_versions": [
+        {
+          "version_id": 1,
+          "order_id": "A",
+          "effective_at": "2026-10-30T08:00:00Z",
+          "recorded_at": "2026-10-30T08:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 10,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 2,
+          "order_id": "A",
+          "effective_at": "2026-10-30T09:00:00Z",
+          "recorded_at": "2026-10-30T09:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 99,
+          "limit_price_cents": 100
+        }
+      ]
+    },
+    "expected": []
+  },
+  {
+    "name": "unknown_withdrawal",
+    "parameters": {
+      "effective_cutoff": "2026-10-30T10:00:00Z",
+      "recorded_cutoff": "2026-10-30T12:00:00Z"
+    },
+    "tables": {
+      "order_versions": [
+        {
+          "version_id": 1,
+          "order_id": "A",
+          "effective_at": "2026-10-30T08:00:00Z",
+          "recorded_at": "2026-10-30T08:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 10,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 2,
+          "order_id": "A",
+          "effective_at": "2026-10-30T09:00:00Z",
+          "recorded_at": "2026-10-30T13:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 99,
+          "limit_price_cents": 100
+        }
+      ]
+    },
+    "expected": [
+      [
+        "A",
+        "XYZ",
+        "BUY",
+        10,
+        100
+      ]
+    ]
+  },
+  {
+    "name": "future_withdrawal",
+    "parameters": {
+      "effective_cutoff": "2026-10-30T10:00:00Z",
+      "recorded_cutoff": "2026-10-30T12:00:00Z"
+    },
+    "tables": {
+      "order_versions": [
+        {
+          "version_id": 1,
+          "order_id": "A",
+          "effective_at": "2026-10-30T08:00:00Z",
+          "recorded_at": "2026-10-30T08:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 10,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 2,
+          "order_id": "A",
+          "effective_at": "2026-10-30T11:00:00Z",
+          "recorded_at": "2026-10-30T09:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 99,
+          "limit_price_cents": 100
+        }
+      ]
+    },
+    "expected": [
+      [
+        "A",
+        "XYZ",
+        "BUY",
+        10,
+        100
+      ]
+    ]
+  },
+  {
+    "name": "exact_boundary_withdrawal",
+    "parameters": {
+      "effective_cutoff": "2026-10-30T10:00:00Z",
+      "recorded_cutoff": "2026-10-30T12:00:00Z"
+    },
+    "tables": {
+      "order_versions": [
+        {
+          "version_id": 1,
+          "order_id": "A",
+          "effective_at": "2026-10-30T08:00:00Z",
+          "recorded_at": "2026-10-30T08:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 10,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 2,
+          "order_id": "A",
+          "effective_at": "2026-10-30T10:00:00Z",
+          "recorded_at": "2026-10-30T12:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 99,
+          "limit_price_cents": 100
+        }
+      ]
+    },
+    "expected": []
+  },
+  {
+    "name": "reopen_after_delete",
+    "parameters": {
+      "effective_cutoff": "2026-10-30T10:00:00Z",
+      "recorded_cutoff": "2026-10-30T12:00:00Z"
+    },
+    "tables": {
+      "order_versions": [
+        {
+          "version_id": 9,
+          "order_id": "A",
+          "effective_at": "2026-10-30T07:00:00Z",
+          "recorded_at": "2026-10-30T07:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 10,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 8,
+          "order_id": "A",
+          "effective_at": "2026-10-30T08:00:00Z",
+          "recorded_at": "2026-10-30T08:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 99,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 1,
+          "order_id": "A",
+          "effective_at": "2026-10-30T09:00:00Z",
+          "recorded_at": "2026-10-30T09:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 3,
+          "limit_price_cents": 100
+        }
+      ]
+    },
+    "expected": [
+      [
+        "A",
+        "XYZ",
+        "BUY",
+        3,
+        100
+      ]
+    ]
+  },
+  {
+    "name": "same_time_corrected_to_delete",
+    "parameters": {
+      "effective_cutoff": "2026-10-30T10:00:00Z",
+      "recorded_cutoff": "2026-10-30T12:00:00Z"
+    },
+    "tables": {
+      "order_versions": [
+        {
+          "version_id": 1,
+          "order_id": "A",
+          "effective_at": "2026-10-30T09:00:00Z",
+          "recorded_at": "2026-10-30T09:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 10,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 2,
+          "order_id": "A",
+          "effective_at": "2026-10-30T09:00:00Z",
+          "recorded_at": "2026-10-30T11:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 99,
+          "limit_price_cents": 100
+        }
+      ]
+    },
+    "expected": []
+  },
+  {
+    "name": "same_time_delete_corrected_to_active",
+    "parameters": {
+      "effective_cutoff": "2026-10-30T10:00:00Z",
+      "recorded_cutoff": "2026-10-30T12:00:00Z"
+    },
+    "tables": {
+      "order_versions": [
+        {
+          "version_id": 1,
+          "order_id": "A",
+          "effective_at": "2026-10-30T09:00:00Z",
+          "recorded_at": "2026-10-30T09:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 99,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 2,
+          "order_id": "A",
+          "effective_at": "2026-10-30T09:00:00Z",
+          "recorded_at": "2026-10-30T11:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 4,
+          "limit_price_cents": 100
+        }
+      ]
+    },
+    "expected": [
+      [
+        "A",
+        "XYZ",
+        "BUY",
+        4,
+        100
+      ]
+    ]
+  },
+  {
+    "name": "old_state_late_delete",
+    "parameters": {
+      "effective_cutoff": "2026-10-30T10:00:00Z",
+      "recorded_cutoff": "2026-10-30T12:00:00Z"
+    },
+    "tables": {
+      "order_versions": [
+        {
+          "version_id": 1,
+          "order_id": "A",
+          "effective_at": "2026-10-30T08:00:00Z",
+          "recorded_at": "2026-10-30T11:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 99,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 2,
+          "order_id": "A",
+          "effective_at": "2026-10-30T09:00:00Z",
+          "recorded_at": "2026-10-30T09:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 4,
+          "limit_price_cents": 100
+        }
+      ]
+    },
+    "expected": [
+      [
+        "A",
+        "XYZ",
+        "BUY",
+        4,
+        100
+      ]
+    ]
+  },
+  {
+    "name": "zero_is_not_delete",
+    "parameters": {
+      "effective_cutoff": "2026-10-30T10:00:00Z",
+      "recorded_cutoff": "2026-10-30T12:00:00Z"
+    },
+    "tables": {
+      "order_versions": [
+        {
+          "version_id": 1,
+          "order_id": "A",
+          "effective_at": "2026-10-30T08:00:00Z",
+          "recorded_at": "2026-10-30T08:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 10,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 2,
+          "order_id": "A",
+          "effective_at": "2026-10-30T09:00:00Z",
+          "recorded_at": "2026-10-30T09:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 0,
+          "limit_price_cents": 100
+        }
+      ]
+    },
+    "expected": [
+      [
+        "A",
+        "XYZ",
+        "BUY",
+        0,
+        100
+      ]
+    ]
+  },
+  {
+    "name": "mixed_orders",
+    "parameters": {
+      "effective_cutoff": "2026-10-30T10:00:00Z",
+      "recorded_cutoff": "2026-10-30T12:00:00Z"
+    },
+    "tables": {
+      "order_versions": [
+        {
+          "version_id": 1,
+          "order_id": "A",
+          "effective_at": "2026-10-30T08:00:00Z",
+          "recorded_at": "2026-10-30T08:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 10,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 2,
+          "order_id": "A",
+          "effective_at": "2026-10-30T09:00:00Z",
+          "recorded_at": "2026-10-30T09:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 99,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 3,
+          "order_id": "B",
+          "effective_at": "2026-10-30T08:00:00Z",
+          "recorded_at": "2026-10-30T08:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 6,
+          "limit_price_cents": 100
+        }
+      ]
+    },
+    "expected": [
+      [
+        "B",
+        "XYZ",
+        "BUY",
+        6,
+        100
+      ]
+    ]
+  },
+  {
+    "name": "seed_5200",
+    "parameters": {
+      "effective_cutoff": "2026-10-30T08:00:00Z",
+      "recorded_cutoff": "2026-10-30T14:00:00Z"
+    },
+    "tables": {
+      "order_versions": [
+        {
+          "version_id": 23,
+          "order_id": "S0-2",
+          "effective_at": "2026-10-30T09:00:00Z",
+          "recorded_at": "2026-10-30T10:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 14,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 21,
+          "order_id": "S0-2",
+          "effective_at": "2026-10-30T09:00:00Z",
+          "recorded_at": "2026-10-30T09:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 18,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 22,
+          "order_id": "S0-2",
+          "effective_at": "2026-10-30T10:00:00Z",
+          "recorded_at": "2026-10-30T10:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 17,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 25,
+          "order_id": "S0-2",
+          "effective_at": "2026-10-30T12:00:00Z",
+          "recorded_at": "2026-10-30T12:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 1,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 4,
+          "order_id": "S0-0",
+          "effective_at": "2026-10-30T10:00:00Z",
+          "recorded_at": "2026-10-30T11:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 5,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 24,
+          "order_id": "S0-2",
+          "effective_at": "2026-10-30T11:00:00Z",
+          "recorded_at": "2026-10-30T12:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 15,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 5,
+          "order_id": "S0-0",
+          "effective_at": "2026-10-30T13:00:00Z",
+          "recorded_at": "2026-10-30T10:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 8,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 31,
+          "order_id": "S0-3",
+          "effective_at": "2026-10-30T08:00:00Z",
+          "recorded_at": "2026-10-30T09:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 14,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 33,
+          "order_id": "S0-3",
+          "effective_at": "2026-10-30T11:00:00Z",
+          "recorded_at": "2026-10-30T12:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 0,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 11,
+          "order_id": "S0-1",
+          "effective_at": "2026-10-30T11:00:00Z",
+          "recorded_at": "2026-10-30T14:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 12,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 35,
+          "order_id": "S0-3",
+          "effective_at": "2026-10-30T13:00:00Z",
+          "recorded_at": "2026-10-30T11:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 14,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 12,
+          "order_id": "S0-1",
+          "effective_at": "2026-10-30T07:00:00Z",
+          "recorded_at": "2026-10-30T13:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 16,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 1,
+          "order_id": "S0-0",
+          "effective_at": "2026-10-30T12:00:00Z",
+          "recorded_at": "2026-10-30T14:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 0,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 14,
+          "order_id": "S0-1",
+          "effective_at": "2026-10-30T12:00:00Z",
+          "recorded_at": "2026-10-30T13:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 0,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 2,
+          "order_id": "S0-0",
+          "effective_at": "2026-10-30T10:00:00Z",
+          "recorded_at": "2026-10-30T07:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 16,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 13,
+          "order_id": "S0-1",
+          "effective_at": "2026-10-30T13:00:00Z",
+          "recorded_at": "2026-10-30T14:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 16,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 32,
+          "order_id": "S0-3",
+          "effective_at": "2026-10-30T11:00:00Z",
+          "recorded_at": "2026-10-30T14:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 7,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 34,
+          "order_id": "S0-3",
+          "effective_at": "2026-10-30T13:00:00Z",
+          "recorded_at": "2026-10-30T10:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 4,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 15,
+          "order_id": "S0-1",
+          "effective_at": "2026-10-30T09:00:00Z",
+          "recorded_at": "2026-10-30T14:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 19,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 3,
+          "order_id": "S0-0",
+          "effective_at": "2026-10-30T10:00:00Z",
+          "recorded_at": "2026-10-30T14:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 8,
+          "limit_price_cents": 100
+        }
+      ]
+    }
+  },
+  {
+    "name": "seed_5201",
+    "parameters": {
+      "effective_cutoff": "2026-10-30T10:00:00Z",
+      "recorded_cutoff": "2026-10-30T14:00:00Z"
+    },
+    "tables": {
+      "order_versions": [
+        {
+          "version_id": 32,
+          "order_id": "S1-3",
+          "effective_at": "2026-10-30T09:00:00Z",
+          "recorded_at": "2026-10-30T13:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 10,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 22,
+          "order_id": "S1-2",
+          "effective_at": "2026-10-30T11:00:00Z",
+          "recorded_at": "2026-10-30T10:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 18,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 23,
+          "order_id": "S1-2",
+          "effective_at": "2026-10-30T07:00:00Z",
+          "recorded_at": "2026-10-30T07:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 9,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 12,
+          "order_id": "S1-1",
+          "effective_at": "2026-10-30T08:00:00Z",
+          "recorded_at": "2026-10-30T11:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 7,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 33,
+          "order_id": "S1-3",
+          "effective_at": "2026-10-30T07:00:00Z",
+          "recorded_at": "2026-10-30T10:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 5,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 15,
+          "order_id": "S1-1",
+          "effective_at": "2026-10-30T13:00:00Z",
+          "recorded_at": "2026-10-30T07:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 7,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 24,
+          "order_id": "S1-2",
+          "effective_at": "2026-10-30T12:00:00Z",
+          "recorded_at": "2026-10-30T13:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 2,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 1,
+          "order_id": "S1-0",
+          "effective_at": "2026-10-30T09:00:00Z",
+          "recorded_at": "2026-10-30T14:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 10,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 13,
+          "order_id": "S1-1",
+          "effective_at": "2026-10-30T11:00:00Z",
+          "recorded_at": "2026-10-30T13:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 17,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 3,
+          "order_id": "S1-0",
+          "effective_at": "2026-10-30T07:00:00Z",
+          "recorded_at": "2026-10-30T10:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 12,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 4,
+          "order_id": "S1-0",
+          "effective_at": "2026-10-30T11:00:00Z",
+          "recorded_at": "2026-10-30T11:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 9,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 34,
+          "order_id": "S1-3",
+          "effective_at": "2026-10-30T12:00:00Z",
+          "recorded_at": "2026-10-30T10:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 11,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 35,
+          "order_id": "S1-3",
+          "effective_at": "2026-10-30T12:00:00Z",
+          "recorded_at": "2026-10-30T08:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 8,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 11,
+          "order_id": "S1-1",
+          "effective_at": "2026-10-30T11:00:00Z",
+          "recorded_at": "2026-10-30T09:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 6,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 21,
+          "order_id": "S1-2",
+          "effective_at": "2026-10-30T08:00:00Z",
+          "recorded_at": "2026-10-30T12:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 17,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 31,
+          "order_id": "S1-3",
+          "effective_at": "2026-10-30T11:00:00Z",
+          "recorded_at": "2026-10-30T09:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 3,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 5,
+          "order_id": "S1-0",
+          "effective_at": "2026-10-30T07:00:00Z",
+          "recorded_at": "2026-10-30T12:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 13,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 14,
+          "order_id": "S1-1",
+          "effective_at": "2026-10-30T13:00:00Z",
+          "recorded_at": "2026-10-30T10:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 19,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 25,
+          "order_id": "S1-2",
+          "effective_at": "2026-10-30T09:00:00Z",
+          "recorded_at": "2026-10-30T10:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 3,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 2,
+          "order_id": "S1-0",
+          "effective_at": "2026-10-30T12:00:00Z",
+          "recorded_at": "2026-10-30T10:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 10,
+          "limit_price_cents": 100
+        }
+      ]
+    }
+  },
+  {
+    "name": "seed_5202",
+    "parameters": {
+      "effective_cutoff": "2026-10-30T12:00:00Z",
+      "recorded_cutoff": "2026-10-30T12:00:00Z"
+    },
+    "tables": {
+      "order_versions": [
+        {
+          "version_id": 24,
+          "order_id": "S2-2",
+          "effective_at": "2026-10-30T08:00:00Z",
+          "recorded_at": "2026-10-30T07:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 18,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 11,
+          "order_id": "S2-1",
+          "effective_at": "2026-10-30T11:00:00Z",
+          "recorded_at": "2026-10-30T08:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 15,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 25,
+          "order_id": "S2-2",
+          "effective_at": "2026-10-30T07:00:00Z",
+          "recorded_at": "2026-10-30T12:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 11,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 1,
+          "order_id": "S2-0",
+          "effective_at": "2026-10-30T13:00:00Z",
+          "recorded_at": "2026-10-30T13:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 11,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 13,
+          "order_id": "S2-1",
+          "effective_at": "2026-10-30T12:00:00Z",
+          "recorded_at": "2026-10-30T13:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 0,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 34,
+          "order_id": "S2-3",
+          "effective_at": "2026-10-30T10:00:00Z",
+          "recorded_at": "2026-10-30T07:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 12,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 31,
+          "order_id": "S2-3",
+          "effective_at": "2026-10-30T10:00:00Z",
+          "recorded_at": "2026-10-30T11:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 18,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 2,
+          "order_id": "S2-0",
+          "effective_at": "2026-10-30T07:00:00Z",
+          "recorded_at": "2026-10-30T10:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 14,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 5,
+          "order_id": "S2-0",
+          "effective_at": "2026-10-30T07:00:00Z",
+          "recorded_at": "2026-10-30T12:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 1,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 35,
+          "order_id": "S2-3",
+          "effective_at": "2026-10-30T13:00:00Z",
+          "recorded_at": "2026-10-30T11:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 9,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 15,
+          "order_id": "S2-1",
+          "effective_at": "2026-10-30T10:00:00Z",
+          "recorded_at": "2026-10-30T14:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 18,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 3,
+          "order_id": "S2-0",
+          "effective_at": "2026-10-30T12:00:00Z",
+          "recorded_at": "2026-10-30T09:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 8,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 33,
+          "order_id": "S2-3",
+          "effective_at": "2026-10-30T08:00:00Z",
+          "recorded_at": "2026-10-30T12:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 12,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 4,
+          "order_id": "S2-0",
+          "effective_at": "2026-10-30T10:00:00Z",
+          "recorded_at": "2026-10-30T08:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 12,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 12,
+          "order_id": "S2-1",
+          "effective_at": "2026-10-30T11:00:00Z",
+          "recorded_at": "2026-10-30T11:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 13,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 21,
+          "order_id": "S2-2",
+          "effective_at": "2026-10-30T10:00:00Z",
+          "recorded_at": "2026-10-30T14:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 14,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 23,
+          "order_id": "S2-2",
+          "effective_at": "2026-10-30T09:00:00Z",
+          "recorded_at": "2026-10-30T08:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 12,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 32,
+          "order_id": "S2-3",
+          "effective_at": "2026-10-30T13:00:00Z",
+          "recorded_at": "2026-10-30T12:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 6,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 22,
+          "order_id": "S2-2",
+          "effective_at": "2026-10-30T10:00:00Z",
+          "recorded_at": "2026-10-30T07:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 12,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 14,
+          "order_id": "S2-1",
+          "effective_at": "2026-10-30T07:00:00Z",
+          "recorded_at": "2026-10-30T14:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 6,
+          "limit_price_cents": 100
+        }
+      ]
+    }
+  },
+  {
+    "name": "seed_5203",
+    "parameters": {
+      "effective_cutoff": "2026-10-30T12:00:00Z",
+      "recorded_cutoff": "2026-10-30T09:00:00Z"
+    },
+    "tables": {
+      "order_versions": [
+        {
+          "version_id": 35,
+          "order_id": "S3-3",
+          "effective_at": "2026-10-30T11:00:00Z",
+          "recorded_at": "2026-10-30T11:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 13,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 1,
+          "order_id": "S3-0",
+          "effective_at": "2026-10-30T12:00:00Z",
+          "recorded_at": "2026-10-30T10:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 17,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 23,
+          "order_id": "S3-2",
+          "effective_at": "2026-10-30T08:00:00Z",
+          "recorded_at": "2026-10-30T09:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 8,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 22,
+          "order_id": "S3-2",
+          "effective_at": "2026-10-30T08:00:00Z",
+          "recorded_at": "2026-10-30T14:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 11,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 33,
+          "order_id": "S3-3",
+          "effective_at": "2026-10-30T08:00:00Z",
+          "recorded_at": "2026-10-30T12:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 6,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 13,
+          "order_id": "S3-1",
+          "effective_at": "2026-10-30T13:00:00Z",
+          "recorded_at": "2026-10-30T14:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 10,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 25,
+          "order_id": "S3-2",
+          "effective_at": "2026-10-30T12:00:00Z",
+          "recorded_at": "2026-10-30T07:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 11,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 21,
+          "order_id": "S3-2",
+          "effective_at": "2026-10-30T07:00:00Z",
+          "recorded_at": "2026-10-30T08:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 13,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 14,
+          "order_id": "S3-1",
+          "effective_at": "2026-10-30T10:00:00Z",
+          "recorded_at": "2026-10-30T13:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 0,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 31,
+          "order_id": "S3-3",
+          "effective_at": "2026-10-30T13:00:00Z",
+          "recorded_at": "2026-10-30T10:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 4,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 34,
+          "order_id": "S3-3",
+          "effective_at": "2026-10-30T09:00:00Z",
+          "recorded_at": "2026-10-30T08:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 13,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 24,
+          "order_id": "S3-2",
+          "effective_at": "2026-10-30T09:00:00Z",
+          "recorded_at": "2026-10-30T07:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 3,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 12,
+          "order_id": "S3-1",
+          "effective_at": "2026-10-30T08:00:00Z",
+          "recorded_at": "2026-10-30T09:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 11,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 3,
+          "order_id": "S3-0",
+          "effective_at": "2026-10-30T13:00:00Z",
+          "recorded_at": "2026-10-30T12:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 15,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 15,
+          "order_id": "S3-1",
+          "effective_at": "2026-10-30T10:00:00Z",
+          "recorded_at": "2026-10-30T09:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 13,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 2,
+          "order_id": "S3-0",
+          "effective_at": "2026-10-30T11:00:00Z",
+          "recorded_at": "2026-10-30T09:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 10,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 4,
+          "order_id": "S3-0",
+          "effective_at": "2026-10-30T12:00:00Z",
+          "recorded_at": "2026-10-30T13:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 8,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 32,
+          "order_id": "S3-3",
+          "effective_at": "2026-10-30T07:00:00Z",
+          "recorded_at": "2026-10-30T11:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 13,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 5,
+          "order_id": "S3-0",
+          "effective_at": "2026-10-30T13:00:00Z",
+          "recorded_at": "2026-10-30T10:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 7,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 11,
+          "order_id": "S3-1",
+          "effective_at": "2026-10-30T11:00:00Z",
+          "recorded_at": "2026-10-30T12:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 19,
+          "limit_price_cents": 100
+        }
+      ]
+    }
+  },
+  {
+    "name": "seed_5204",
+    "parameters": {
+      "effective_cutoff": "2026-10-30T08:00:00Z",
+      "recorded_cutoff": "2026-10-30T14:00:00Z"
+    },
+    "tables": {
+      "order_versions": [
+        {
+          "version_id": 33,
+          "order_id": "S4-3",
+          "effective_at": "2026-10-30T07:00:00Z",
+          "recorded_at": "2026-10-30T10:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 4,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 12,
+          "order_id": "S4-1",
+          "effective_at": "2026-10-30T10:00:00Z",
+          "recorded_at": "2026-10-30T07:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 12,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 4,
+          "order_id": "S4-0",
+          "effective_at": "2026-10-30T12:00:00Z",
+          "recorded_at": "2026-10-30T11:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 15,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 15,
+          "order_id": "S4-1",
+          "effective_at": "2026-10-30T12:00:00Z",
+          "recorded_at": "2026-10-30T09:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 15,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 1,
+          "order_id": "S4-0",
+          "effective_at": "2026-10-30T07:00:00Z",
+          "recorded_at": "2026-10-30T12:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 10,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 5,
+          "order_id": "S4-0",
+          "effective_at": "2026-10-30T13:00:00Z",
+          "recorded_at": "2026-10-30T14:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 6,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 35,
+          "order_id": "S4-3",
+          "effective_at": "2026-10-30T12:00:00Z",
+          "recorded_at": "2026-10-30T07:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 8,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 25,
+          "order_id": "S4-2",
+          "effective_at": "2026-10-30T11:00:00Z",
+          "recorded_at": "2026-10-30T08:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 12,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 13,
+          "order_id": "S4-1",
+          "effective_at": "2026-10-30T13:00:00Z",
+          "recorded_at": "2026-10-30T13:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 7,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 11,
+          "order_id": "S4-1",
+          "effective_at": "2026-10-30T08:00:00Z",
+          "recorded_at": "2026-10-30T08:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 19,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 3,
+          "order_id": "S4-0",
+          "effective_at": "2026-10-30T10:00:00Z",
+          "recorded_at": "2026-10-30T09:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 4,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 22,
+          "order_id": "S4-2",
+          "effective_at": "2026-10-30T09:00:00Z",
+          "recorded_at": "2026-10-30T12:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 19,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 23,
+          "order_id": "S4-2",
+          "effective_at": "2026-10-30T10:00:00Z",
+          "recorded_at": "2026-10-30T10:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 14,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 14,
+          "order_id": "S4-1",
+          "effective_at": "2026-10-30T10:00:00Z",
+          "recorded_at": "2026-10-30T09:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 17,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 32,
+          "order_id": "S4-3",
+          "effective_at": "2026-10-30T11:00:00Z",
+          "recorded_at": "2026-10-30T09:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 15,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 31,
+          "order_id": "S4-3",
+          "effective_at": "2026-10-30T10:00:00Z",
+          "recorded_at": "2026-10-30T14:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 2,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 2,
+          "order_id": "S4-0",
+          "effective_at": "2026-10-30T07:00:00Z",
+          "recorded_at": "2026-10-30T10:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 18,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 34,
+          "order_id": "S4-3",
+          "effective_at": "2026-10-30T07:00:00Z",
+          "recorded_at": "2026-10-30T11:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 7,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 24,
+          "order_id": "S4-2",
+          "effective_at": "2026-10-30T08:00:00Z",
+          "recorded_at": "2026-10-30T13:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 3,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 21,
+          "order_id": "S4-2",
+          "effective_at": "2026-10-30T07:00:00Z",
+          "recorded_at": "2026-10-30T13:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 4,
+          "limit_price_cents": 100
+        }
+      ]
+    }
+  },
+  {
+    "name": "seed_5205",
+    "parameters": {
+      "effective_cutoff": "2026-10-30T12:00:00Z",
+      "recorded_cutoff": "2026-10-30T09:00:00Z"
+    },
+    "tables": {
+      "order_versions": [
+        {
+          "version_id": 5,
+          "order_id": "S5-0",
+          "effective_at": "2026-10-30T07:00:00Z",
+          "recorded_at": "2026-10-30T11:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 17,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 21,
+          "order_id": "S5-2",
+          "effective_at": "2026-10-30T09:00:00Z",
+          "recorded_at": "2026-10-30T10:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 6,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 13,
+          "order_id": "S5-1",
+          "effective_at": "2026-10-30T10:00:00Z",
+          "recorded_at": "2026-10-30T11:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 11,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 33,
+          "order_id": "S5-3",
+          "effective_at": "2026-10-30T09:00:00Z",
+          "recorded_at": "2026-10-30T10:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 1,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 14,
+          "order_id": "S5-1",
+          "effective_at": "2026-10-30T11:00:00Z",
+          "recorded_at": "2026-10-30T07:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 14,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 35,
+          "order_id": "S5-3",
+          "effective_at": "2026-10-30T12:00:00Z",
+          "recorded_at": "2026-10-30T10:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 13,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 32,
+          "order_id": "S5-3",
+          "effective_at": "2026-10-30T13:00:00Z",
+          "recorded_at": "2026-10-30T13:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 3,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 3,
+          "order_id": "S5-0",
+          "effective_at": "2026-10-30T10:00:00Z",
+          "recorded_at": "2026-10-30T11:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 17,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 31,
+          "order_id": "S5-3",
+          "effective_at": "2026-10-30T11:00:00Z",
+          "recorded_at": "2026-10-30T08:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 7,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 25,
+          "order_id": "S5-2",
+          "effective_at": "2026-10-30T13:00:00Z",
+          "recorded_at": "2026-10-30T12:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 17,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 4,
+          "order_id": "S5-0",
+          "effective_at": "2026-10-30T09:00:00Z",
+          "recorded_at": "2026-10-30T09:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 8,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 2,
+          "order_id": "S5-0",
+          "effective_at": "2026-10-30T13:00:00Z",
+          "recorded_at": "2026-10-30T08:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 17,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 22,
+          "order_id": "S5-2",
+          "effective_at": "2026-10-30T10:00:00Z",
+          "recorded_at": "2026-10-30T09:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 13,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 12,
+          "order_id": "S5-1",
+          "effective_at": "2026-10-30T10:00:00Z",
+          "recorded_at": "2026-10-30T08:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 14,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 24,
+          "order_id": "S5-2",
+          "effective_at": "2026-10-30T07:00:00Z",
+          "recorded_at": "2026-10-30T10:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 0,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 23,
+          "order_id": "S5-2",
+          "effective_at": "2026-10-30T11:00:00Z",
+          "recorded_at": "2026-10-30T10:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 10,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 15,
+          "order_id": "S5-1",
+          "effective_at": "2026-10-30T13:00:00Z",
+          "recorded_at": "2026-10-30T13:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 13,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 1,
+          "order_id": "S5-0",
+          "effective_at": "2026-10-30T11:00:00Z",
+          "recorded_at": "2026-10-30T07:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 0,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 34,
+          "order_id": "S5-3",
+          "effective_at": "2026-10-30T11:00:00Z",
+          "recorded_at": "2026-10-30T13:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 9,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 11,
+          "order_id": "S5-1",
+          "effective_at": "2026-10-30T08:00:00Z",
+          "recorded_at": "2026-10-30T13:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 6,
+          "limit_price_cents": 100
+        }
+      ]
+    }
+  },
+  {
+    "name": "seed_5206",
+    "parameters": {
+      "effective_cutoff": "2026-10-30T12:00:00Z",
+      "recorded_cutoff": "2026-10-30T09:00:00Z"
+    },
+    "tables": {
+      "order_versions": [
+        {
+          "version_id": 4,
+          "order_id": "S6-0",
+          "effective_at": "2026-10-30T07:00:00Z",
+          "recorded_at": "2026-10-30T13:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 3,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 22,
+          "order_id": "S6-2",
+          "effective_at": "2026-10-30T08:00:00Z",
+          "recorded_at": "2026-10-30T09:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 17,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 35,
+          "order_id": "S6-3",
+          "effective_at": "2026-10-30T08:00:00Z",
+          "recorded_at": "2026-10-30T14:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 14,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 25,
+          "order_id": "S6-2",
+          "effective_at": "2026-10-30T10:00:00Z",
+          "recorded_at": "2026-10-30T13:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 10,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 3,
+          "order_id": "S6-0",
+          "effective_at": "2026-10-30T07:00:00Z",
+          "recorded_at": "2026-10-30T14:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 9,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 33,
+          "order_id": "S6-3",
+          "effective_at": "2026-10-30T11:00:00Z",
+          "recorded_at": "2026-10-30T11:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 15,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 23,
+          "order_id": "S6-2",
+          "effective_at": "2026-10-30T11:00:00Z",
+          "recorded_at": "2026-10-30T09:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 0,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 21,
+          "order_id": "S6-2",
+          "effective_at": "2026-10-30T11:00:00Z",
+          "recorded_at": "2026-10-30T12:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 16,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 14,
+          "order_id": "S6-1",
+          "effective_at": "2026-10-30T10:00:00Z",
+          "recorded_at": "2026-10-30T08:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 12,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 1,
+          "order_id": "S6-0",
+          "effective_at": "2026-10-30T07:00:00Z",
+          "recorded_at": "2026-10-30T11:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 14,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 13,
+          "order_id": "S6-1",
+          "effective_at": "2026-10-30T09:00:00Z",
+          "recorded_at": "2026-10-30T14:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 14,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 24,
+          "order_id": "S6-2",
+          "effective_at": "2026-10-30T09:00:00Z",
+          "recorded_at": "2026-10-30T13:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 5,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 2,
+          "order_id": "S6-0",
+          "effective_at": "2026-10-30T07:00:00Z",
+          "recorded_at": "2026-10-30T08:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 19,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 31,
+          "order_id": "S6-3",
+          "effective_at": "2026-10-30T08:00:00Z",
+          "recorded_at": "2026-10-30T10:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 12,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 5,
+          "order_id": "S6-0",
+          "effective_at": "2026-10-30T07:00:00Z",
+          "recorded_at": "2026-10-30T09:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 15,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 32,
+          "order_id": "S6-3",
+          "effective_at": "2026-10-30T07:00:00Z",
+          "recorded_at": "2026-10-30T10:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 11,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 11,
+          "order_id": "S6-1",
+          "effective_at": "2026-10-30T10:00:00Z",
+          "recorded_at": "2026-10-30T09:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 2,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 15,
+          "order_id": "S6-1",
+          "effective_at": "2026-10-30T09:00:00Z",
+          "recorded_at": "2026-10-30T07:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 15,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 12,
+          "order_id": "S6-1",
+          "effective_at": "2026-10-30T07:00:00Z",
+          "recorded_at": "2026-10-30T11:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 13,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 34,
+          "order_id": "S6-3",
+          "effective_at": "2026-10-30T10:00:00Z",
+          "recorded_at": "2026-10-30T10:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 11,
+          "limit_price_cents": 100
+        }
+      ]
+    }
+  },
+  {
+    "name": "seed_5207",
+    "parameters": {
+      "effective_cutoff": "2026-10-30T10:00:00Z",
+      "recorded_cutoff": "2026-10-30T12:00:00Z"
+    },
+    "tables": {
+      "order_versions": [
+        {
+          "version_id": 15,
+          "order_id": "S7-1",
+          "effective_at": "2026-10-30T07:00:00Z",
+          "recorded_at": "2026-10-30T10:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 0,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 11,
+          "order_id": "S7-1",
+          "effective_at": "2026-10-30T13:00:00Z",
+          "recorded_at": "2026-10-30T12:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 1,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 1,
+          "order_id": "S7-0",
+          "effective_at": "2026-10-30T07:00:00Z",
+          "recorded_at": "2026-10-30T10:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 11,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 33,
+          "order_id": "S7-3",
+          "effective_at": "2026-10-30T13:00:00Z",
+          "recorded_at": "2026-10-30T08:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 10,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 25,
+          "order_id": "S7-2",
+          "effective_at": "2026-10-30T08:00:00Z",
+          "recorded_at": "2026-10-30T08:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 11,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 22,
+          "order_id": "S7-2",
+          "effective_at": "2026-10-30T09:00:00Z",
+          "recorded_at": "2026-10-30T09:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 15,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 35,
+          "order_id": "S7-3",
+          "effective_at": "2026-10-30T09:00:00Z",
+          "recorded_at": "2026-10-30T12:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 11,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 5,
+          "order_id": "S7-0",
+          "effective_at": "2026-10-30T10:00:00Z",
+          "recorded_at": "2026-10-30T08:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 14,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 4,
+          "order_id": "S7-0",
+          "effective_at": "2026-10-30T13:00:00Z",
+          "recorded_at": "2026-10-30T09:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 8,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 32,
+          "order_id": "S7-3",
+          "effective_at": "2026-10-30T11:00:00Z",
+          "recorded_at": "2026-10-30T14:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 13,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 31,
+          "order_id": "S7-3",
+          "effective_at": "2026-10-30T10:00:00Z",
+          "recorded_at": "2026-10-30T09:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 4,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 34,
+          "order_id": "S7-3",
+          "effective_at": "2026-10-30T13:00:00Z",
+          "recorded_at": "2026-10-30T13:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 3,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 13,
+          "order_id": "S7-1",
+          "effective_at": "2026-10-30T11:00:00Z",
+          "recorded_at": "2026-10-30T14:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 3,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 14,
+          "order_id": "S7-1",
+          "effective_at": "2026-10-30T11:00:00Z",
+          "recorded_at": "2026-10-30T11:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 18,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 3,
+          "order_id": "S7-0",
+          "effective_at": "2026-10-30T08:00:00Z",
+          "recorded_at": "2026-10-30T14:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 14,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 24,
+          "order_id": "S7-2",
+          "effective_at": "2026-10-30T13:00:00Z",
+          "recorded_at": "2026-10-30T08:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 5,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 21,
+          "order_id": "S7-2",
+          "effective_at": "2026-10-30T10:00:00Z",
+          "recorded_at": "2026-10-30T07:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 3,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 23,
+          "order_id": "S7-2",
+          "effective_at": "2026-10-30T13:00:00Z",
+          "recorded_at": "2026-10-30T09:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 8,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 2,
+          "order_id": "S7-0",
+          "effective_at": "2026-10-30T09:00:00Z",
+          "recorded_at": "2026-10-30T12:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 9,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 12,
+          "order_id": "S7-1",
+          "effective_at": "2026-10-30T07:00:00Z",
+          "recorded_at": "2026-10-30T09:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 8,
+          "limit_price_cents": 100
+        }
+      ]
+    }
+  },
+  {
+    "name": "seed_5208",
+    "parameters": {
+      "effective_cutoff": "2026-10-30T08:00:00Z",
+      "recorded_cutoff": "2026-10-30T09:00:00Z"
+    },
+    "tables": {
+      "order_versions": [
+        {
+          "version_id": 34,
+          "order_id": "S8-3",
+          "effective_at": "2026-10-30T12:00:00Z",
+          "recorded_at": "2026-10-30T08:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 1,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 21,
+          "order_id": "S8-2",
+          "effective_at": "2026-10-30T11:00:00Z",
+          "recorded_at": "2026-10-30T08:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 17,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 2,
+          "order_id": "S8-0",
+          "effective_at": "2026-10-30T10:00:00Z",
+          "recorded_at": "2026-10-30T07:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 6,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 1,
+          "order_id": "S8-0",
+          "effective_at": "2026-10-30T07:00:00Z",
+          "recorded_at": "2026-10-30T10:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 10,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 13,
+          "order_id": "S8-1",
+          "effective_at": "2026-10-30T08:00:00Z",
+          "recorded_at": "2026-10-30T07:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 6,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 25,
+          "order_id": "S8-2",
+          "effective_at": "2026-10-30T07:00:00Z",
+          "recorded_at": "2026-10-30T14:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 14,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 31,
+          "order_id": "S8-3",
+          "effective_at": "2026-10-30T11:00:00Z",
+          "recorded_at": "2026-10-30T13:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 9,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 35,
+          "order_id": "S8-3",
+          "effective_at": "2026-10-30T12:00:00Z",
+          "recorded_at": "2026-10-30T13:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 18,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 23,
+          "order_id": "S8-2",
+          "effective_at": "2026-10-30T08:00:00Z",
+          "recorded_at": "2026-10-30T14:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 9,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 11,
+          "order_id": "S8-1",
+          "effective_at": "2026-10-30T08:00:00Z",
+          "recorded_at": "2026-10-30T14:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 15,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 32,
+          "order_id": "S8-3",
+          "effective_at": "2026-10-30T10:00:00Z",
+          "recorded_at": "2026-10-30T10:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 9,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 24,
+          "order_id": "S8-2",
+          "effective_at": "2026-10-30T10:00:00Z",
+          "recorded_at": "2026-10-30T09:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 6,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 3,
+          "order_id": "S8-0",
+          "effective_at": "2026-10-30T13:00:00Z",
+          "recorded_at": "2026-10-30T14:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 10,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 4,
+          "order_id": "S8-0",
+          "effective_at": "2026-10-30T08:00:00Z",
+          "recorded_at": "2026-10-30T12:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 17,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 33,
+          "order_id": "S8-3",
+          "effective_at": "2026-10-30T13:00:00Z",
+          "recorded_at": "2026-10-30T10:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 3,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 5,
+          "order_id": "S8-0",
+          "effective_at": "2026-10-30T10:00:00Z",
+          "recorded_at": "2026-10-30T14:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 8,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 14,
+          "order_id": "S8-1",
+          "effective_at": "2026-10-30T09:00:00Z",
+          "recorded_at": "2026-10-30T08:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 18,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 15,
+          "order_id": "S8-1",
+          "effective_at": "2026-10-30T11:00:00Z",
+          "recorded_at": "2026-10-30T12:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 6,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 12,
+          "order_id": "S8-1",
+          "effective_at": "2026-10-30T07:00:00Z",
+          "recorded_at": "2026-10-30T12:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 0,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 22,
+          "order_id": "S8-2",
+          "effective_at": "2026-10-30T10:00:00Z",
+          "recorded_at": "2026-10-30T14:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 8,
+          "limit_price_cents": 100
+        }
+      ]
+    }
+  },
+  {
+    "name": "seed_5209",
+    "parameters": {
+      "effective_cutoff": "2026-10-30T12:00:00Z",
+      "recorded_cutoff": "2026-10-30T09:00:00Z"
+    },
+    "tables": {
+      "order_versions": [
+        {
+          "version_id": 22,
+          "order_id": "S9-2",
+          "effective_at": "2026-10-30T07:00:00Z",
+          "recorded_at": "2026-10-30T11:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 9,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 13,
+          "order_id": "S9-1",
+          "effective_at": "2026-10-30T12:00:00Z",
+          "recorded_at": "2026-10-30T14:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 16,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 35,
+          "order_id": "S9-3",
+          "effective_at": "2026-10-30T13:00:00Z",
+          "recorded_at": "2026-10-30T11:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 17,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 25,
+          "order_id": "S9-2",
+          "effective_at": "2026-10-30T13:00:00Z",
+          "recorded_at": "2026-10-30T11:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 14,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 2,
+          "order_id": "S9-0",
+          "effective_at": "2026-10-30T10:00:00Z",
+          "recorded_at": "2026-10-30T07:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 3,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 1,
+          "order_id": "S9-0",
+          "effective_at": "2026-10-30T11:00:00Z",
+          "recorded_at": "2026-10-30T11:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 2,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 32,
+          "order_id": "S9-3",
+          "effective_at": "2026-10-30T10:00:00Z",
+          "recorded_at": "2026-10-30T07:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 16,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 12,
+          "order_id": "S9-1",
+          "effective_at": "2026-10-30T11:00:00Z",
+          "recorded_at": "2026-10-30T12:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 6,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 24,
+          "order_id": "S9-2",
+          "effective_at": "2026-10-30T11:00:00Z",
+          "recorded_at": "2026-10-30T13:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 1,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 21,
+          "order_id": "S9-2",
+          "effective_at": "2026-10-30T13:00:00Z",
+          "recorded_at": "2026-10-30T09:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 13,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 11,
+          "order_id": "S9-1",
+          "effective_at": "2026-10-30T09:00:00Z",
+          "recorded_at": "2026-10-30T10:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 16,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 23,
+          "order_id": "S9-2",
+          "effective_at": "2026-10-30T08:00:00Z",
+          "recorded_at": "2026-10-30T09:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 11,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 34,
+          "order_id": "S9-3",
+          "effective_at": "2026-10-30T12:00:00Z",
+          "recorded_at": "2026-10-30T07:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 13,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 14,
+          "order_id": "S9-1",
+          "effective_at": "2026-10-30T08:00:00Z",
+          "recorded_at": "2026-10-30T10:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 3,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 5,
+          "order_id": "S9-0",
+          "effective_at": "2026-10-30T09:00:00Z",
+          "recorded_at": "2026-10-30T13:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 17,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 4,
+          "order_id": "S9-0",
+          "effective_at": "2026-10-30T07:00:00Z",
+          "recorded_at": "2026-10-30T11:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 12,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 31,
+          "order_id": "S9-3",
+          "effective_at": "2026-10-30T09:00:00Z",
+          "recorded_at": "2026-10-30T12:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 8,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 3,
+          "order_id": "S9-0",
+          "effective_at": "2026-10-30T13:00:00Z",
+          "recorded_at": "2026-10-30T07:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 3,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 33,
+          "order_id": "S9-3",
+          "effective_at": "2026-10-30T08:00:00Z",
+          "recorded_at": "2026-10-30T12:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 0,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 15,
+          "order_id": "S9-1",
+          "effective_at": "2026-10-30T10:00:00Z",
+          "recorded_at": "2026-10-30T09:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 14,
+          "limit_price_cents": 100
+        }
+      ]
+    }
+  },
+  {
+    "name": "seed_5210",
+    "parameters": {
+      "effective_cutoff": "2026-10-30T12:00:00Z",
+      "recorded_cutoff": "2026-10-30T14:00:00Z"
+    },
+    "tables": {
+      "order_versions": [
+        {
+          "version_id": 33,
+          "order_id": "S10-3",
+          "effective_at": "2026-10-30T13:00:00Z",
+          "recorded_at": "2026-10-30T12:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 19,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 34,
+          "order_id": "S10-3",
+          "effective_at": "2026-10-30T13:00:00Z",
+          "recorded_at": "2026-10-30T14:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 4,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 13,
+          "order_id": "S10-1",
+          "effective_at": "2026-10-30T11:00:00Z",
+          "recorded_at": "2026-10-30T12:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 8,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 21,
+          "order_id": "S10-2",
+          "effective_at": "2026-10-30T08:00:00Z",
+          "recorded_at": "2026-10-30T07:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 5,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 11,
+          "order_id": "S10-1",
+          "effective_at": "2026-10-30T10:00:00Z",
+          "recorded_at": "2026-10-30T08:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 15,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 31,
+          "order_id": "S10-3",
+          "effective_at": "2026-10-30T13:00:00Z",
+          "recorded_at": "2026-10-30T08:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 19,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 14,
+          "order_id": "S10-1",
+          "effective_at": "2026-10-30T13:00:00Z",
+          "recorded_at": "2026-10-30T07:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 17,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 4,
+          "order_id": "S10-0",
+          "effective_at": "2026-10-30T12:00:00Z",
+          "recorded_at": "2026-10-30T14:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 7,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 25,
+          "order_id": "S10-2",
+          "effective_at": "2026-10-30T12:00:00Z",
+          "recorded_at": "2026-10-30T08:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 6,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 3,
+          "order_id": "S10-0",
+          "effective_at": "2026-10-30T12:00:00Z",
+          "recorded_at": "2026-10-30T07:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 8,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 22,
+          "order_id": "S10-2",
+          "effective_at": "2026-10-30T08:00:00Z",
+          "recorded_at": "2026-10-30T09:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 5,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 15,
+          "order_id": "S10-1",
+          "effective_at": "2026-10-30T08:00:00Z",
+          "recorded_at": "2026-10-30T09:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 6,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 32,
+          "order_id": "S10-3",
+          "effective_at": "2026-10-30T12:00:00Z",
+          "recorded_at": "2026-10-30T08:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 13,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 1,
+          "order_id": "S10-0",
+          "effective_at": "2026-10-30T09:00:00Z",
+          "recorded_at": "2026-10-30T09:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 11,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 24,
+          "order_id": "S10-2",
+          "effective_at": "2026-10-30T08:00:00Z",
+          "recorded_at": "2026-10-30T13:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 6,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 35,
+          "order_id": "S10-3",
+          "effective_at": "2026-10-30T09:00:00Z",
+          "recorded_at": "2026-10-30T11:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 4,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 12,
+          "order_id": "S10-1",
+          "effective_at": "2026-10-30T09:00:00Z",
+          "recorded_at": "2026-10-30T11:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 12,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 23,
+          "order_id": "S10-2",
+          "effective_at": "2026-10-30T09:00:00Z",
+          "recorded_at": "2026-10-30T14:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 5,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 5,
+          "order_id": "S10-0",
+          "effective_at": "2026-10-30T10:00:00Z",
+          "recorded_at": "2026-10-30T12:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 0,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 2,
+          "order_id": "S10-0",
+          "effective_at": "2026-10-30T12:00:00Z",
+          "recorded_at": "2026-10-30T13:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 1,
+          "limit_price_cents": 100
+        }
+      ]
+    }
+  },
+  {
+    "name": "seed_5211",
+    "parameters": {
+      "effective_cutoff": "2026-10-30T10:00:00Z",
+      "recorded_cutoff": "2026-10-30T09:00:00Z"
+    },
+    "tables": {
+      "order_versions": [
+        {
+          "version_id": 32,
+          "order_id": "S11-3",
+          "effective_at": "2026-10-30T10:00:00Z",
+          "recorded_at": "2026-10-30T10:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 14,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 12,
+          "order_id": "S11-1",
+          "effective_at": "2026-10-30T13:00:00Z",
+          "recorded_at": "2026-10-30T07:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 4,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 34,
+          "order_id": "S11-3",
+          "effective_at": "2026-10-30T12:00:00Z",
+          "recorded_at": "2026-10-30T13:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 8,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 2,
+          "order_id": "S11-0",
+          "effective_at": "2026-10-30T07:00:00Z",
+          "recorded_at": "2026-10-30T11:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 4,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 23,
+          "order_id": "S11-2",
+          "effective_at": "2026-10-30T12:00:00Z",
+          "recorded_at": "2026-10-30T10:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 4,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 15,
+          "order_id": "S11-1",
+          "effective_at": "2026-10-30T08:00:00Z",
+          "recorded_at": "2026-10-30T12:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 16,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 13,
+          "order_id": "S11-1",
+          "effective_at": "2026-10-30T09:00:00Z",
+          "recorded_at": "2026-10-30T10:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 8,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 14,
+          "order_id": "S11-1",
+          "effective_at": "2026-10-30T09:00:00Z",
+          "recorded_at": "2026-10-30T07:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 17,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 31,
+          "order_id": "S11-3",
+          "effective_at": "2026-10-30T12:00:00Z",
+          "recorded_at": "2026-10-30T12:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 19,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 33,
+          "order_id": "S11-3",
+          "effective_at": "2026-10-30T13:00:00Z",
+          "recorded_at": "2026-10-30T11:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 14,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 5,
+          "order_id": "S11-0",
+          "effective_at": "2026-10-30T10:00:00Z",
+          "recorded_at": "2026-10-30T14:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 15,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 22,
+          "order_id": "S11-2",
+          "effective_at": "2026-10-30T09:00:00Z",
+          "recorded_at": "2026-10-30T08:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 5,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 21,
+          "order_id": "S11-2",
+          "effective_at": "2026-10-30T09:00:00Z",
+          "recorded_at": "2026-10-30T13:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 12,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 25,
+          "order_id": "S11-2",
+          "effective_at": "2026-10-30T11:00:00Z",
+          "recorded_at": "2026-10-30T08:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 17,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 4,
+          "order_id": "S11-0",
+          "effective_at": "2026-10-30T10:00:00Z",
+          "recorded_at": "2026-10-30T07:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 17,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 24,
+          "order_id": "S11-2",
+          "effective_at": "2026-10-30T13:00:00Z",
+          "recorded_at": "2026-10-30T07:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 19,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 3,
+          "order_id": "S11-0",
+          "effective_at": "2026-10-30T13:00:00Z",
+          "recorded_at": "2026-10-30T08:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 16,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 1,
+          "order_id": "S11-0",
+          "effective_at": "2026-10-30T07:00:00Z",
+          "recorded_at": "2026-10-30T14:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 1,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 35,
+          "order_id": "S11-3",
+          "effective_at": "2026-10-30T07:00:00Z",
+          "recorded_at": "2026-10-30T09:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 6,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 11,
+          "order_id": "S11-1",
+          "effective_at": "2026-10-30T07:00:00Z",
+          "recorded_at": "2026-10-30T07:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 15,
+          "limit_price_cents": 100
+        }
+      ]
+    }
+  },
+  {
+    "name": "seed_5212",
+    "parameters": {
+      "effective_cutoff": "2026-10-30T10:00:00Z",
+      "recorded_cutoff": "2026-10-30T12:00:00Z"
+    },
+    "tables": {
+      "order_versions": [
+        {
+          "version_id": 21,
+          "order_id": "S12-2",
+          "effective_at": "2026-10-30T12:00:00Z",
+          "recorded_at": "2026-10-30T14:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 12,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 5,
+          "order_id": "S12-0",
+          "effective_at": "2026-10-30T08:00:00Z",
+          "recorded_at": "2026-10-30T09:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 6,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 32,
+          "order_id": "S12-3",
+          "effective_at": "2026-10-30T13:00:00Z",
+          "recorded_at": "2026-10-30T14:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 10,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 25,
+          "order_id": "S12-2",
+          "effective_at": "2026-10-30T10:00:00Z",
+          "recorded_at": "2026-10-30T08:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 19,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 31,
+          "order_id": "S12-3",
+          "effective_at": "2026-10-30T13:00:00Z",
+          "recorded_at": "2026-10-30T11:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 11,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 2,
+          "order_id": "S12-0",
+          "effective_at": "2026-10-30T12:00:00Z",
+          "recorded_at": "2026-10-30T11:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 18,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 22,
+          "order_id": "S12-2",
+          "effective_at": "2026-10-30T09:00:00Z",
+          "recorded_at": "2026-10-30T07:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 7,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 3,
+          "order_id": "S12-0",
+          "effective_at": "2026-10-30T12:00:00Z",
+          "recorded_at": "2026-10-30T12:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 0,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 23,
+          "order_id": "S12-2",
+          "effective_at": "2026-10-30T08:00:00Z",
+          "recorded_at": "2026-10-30T11:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 3,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 24,
+          "order_id": "S12-2",
+          "effective_at": "2026-10-30T13:00:00Z",
+          "recorded_at": "2026-10-30T10:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 9,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 35,
+          "order_id": "S12-3",
+          "effective_at": "2026-10-30T09:00:00Z",
+          "recorded_at": "2026-10-30T08:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 16,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 12,
+          "order_id": "S12-1",
+          "effective_at": "2026-10-30T13:00:00Z",
+          "recorded_at": "2026-10-30T11:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 19,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 34,
+          "order_id": "S12-3",
+          "effective_at": "2026-10-30T12:00:00Z",
+          "recorded_at": "2026-10-30T12:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 17,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 15,
+          "order_id": "S12-1",
+          "effective_at": "2026-10-30T10:00:00Z",
+          "recorded_at": "2026-10-30T11:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 4,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 14,
+          "order_id": "S12-1",
+          "effective_at": "2026-10-30T08:00:00Z",
+          "recorded_at": "2026-10-30T12:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 19,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 4,
+          "order_id": "S12-0",
+          "effective_at": "2026-10-30T08:00:00Z",
+          "recorded_at": "2026-10-30T07:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 8,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 11,
+          "order_id": "S12-1",
+          "effective_at": "2026-10-30T11:00:00Z",
+          "recorded_at": "2026-10-30T08:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 2,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 13,
+          "order_id": "S12-1",
+          "effective_at": "2026-10-30T09:00:00Z",
+          "recorded_at": "2026-10-30T08:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 19,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 33,
+          "order_id": "S12-3",
+          "effective_at": "2026-10-30T12:00:00Z",
+          "recorded_at": "2026-10-30T14:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 4,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 1,
+          "order_id": "S12-0",
+          "effective_at": "2026-10-30T11:00:00Z",
+          "recorded_at": "2026-10-30T11:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 12,
+          "limit_price_cents": 100
+        }
+      ]
+    }
+  },
+  {
+    "name": "seed_5213",
+    "parameters": {
+      "effective_cutoff": "2026-10-30T10:00:00Z",
+      "recorded_cutoff": "2026-10-30T09:00:00Z"
+    },
+    "tables": {
+      "order_versions": [
+        {
+          "version_id": 13,
+          "order_id": "S13-1",
+          "effective_at": "2026-10-30T11:00:00Z",
+          "recorded_at": "2026-10-30T08:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 8,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 33,
+          "order_id": "S13-3",
+          "effective_at": "2026-10-30T09:00:00Z",
+          "recorded_at": "2026-10-30T13:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 16,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 34,
+          "order_id": "S13-3",
+          "effective_at": "2026-10-30T12:00:00Z",
+          "recorded_at": "2026-10-30T12:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 14,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 23,
+          "order_id": "S13-2",
+          "effective_at": "2026-10-30T13:00:00Z",
+          "recorded_at": "2026-10-30T07:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 16,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 12,
+          "order_id": "S13-1",
+          "effective_at": "2026-10-30T13:00:00Z",
+          "recorded_at": "2026-10-30T12:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 14,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 32,
+          "order_id": "S13-3",
+          "effective_at": "2026-10-30T13:00:00Z",
+          "recorded_at": "2026-10-30T09:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 17,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 3,
+          "order_id": "S13-0",
+          "effective_at": "2026-10-30T11:00:00Z",
+          "recorded_at": "2026-10-30T08:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 14,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 21,
+          "order_id": "S13-2",
+          "effective_at": "2026-10-30T11:00:00Z",
+          "recorded_at": "2026-10-30T07:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 14,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 1,
+          "order_id": "S13-0",
+          "effective_at": "2026-10-30T07:00:00Z",
+          "recorded_at": "2026-10-30T12:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 14,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 35,
+          "order_id": "S13-3",
+          "effective_at": "2026-10-30T10:00:00Z",
+          "recorded_at": "2026-10-30T13:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 8,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 24,
+          "order_id": "S13-2",
+          "effective_at": "2026-10-30T13:00:00Z",
+          "recorded_at": "2026-10-30T11:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 14,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 11,
+          "order_id": "S13-1",
+          "effective_at": "2026-10-30T07:00:00Z",
+          "recorded_at": "2026-10-30T13:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 6,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 22,
+          "order_id": "S13-2",
+          "effective_at": "2026-10-30T08:00:00Z",
+          "recorded_at": "2026-10-30T08:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 5,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 25,
+          "order_id": "S13-2",
+          "effective_at": "2026-10-30T12:00:00Z",
+          "recorded_at": "2026-10-30T12:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 14,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 2,
+          "order_id": "S13-0",
+          "effective_at": "2026-10-30T10:00:00Z",
+          "recorded_at": "2026-10-30T14:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 11,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 4,
+          "order_id": "S13-0",
+          "effective_at": "2026-10-30T11:00:00Z",
+          "recorded_at": "2026-10-30T11:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 2,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 5,
+          "order_id": "S13-0",
+          "effective_at": "2026-10-30T11:00:00Z",
+          "recorded_at": "2026-10-30T13:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 7,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 14,
+          "order_id": "S13-1",
+          "effective_at": "2026-10-30T08:00:00Z",
+          "recorded_at": "2026-10-30T08:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 14,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 31,
+          "order_id": "S13-3",
+          "effective_at": "2026-10-30T07:00:00Z",
+          "recorded_at": "2026-10-30T07:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 9,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 15,
+          "order_id": "S13-1",
+          "effective_at": "2026-10-30T09:00:00Z",
+          "recorded_at": "2026-10-30T10:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 19,
+          "limit_price_cents": 100
+        }
+      ]
+    }
+  },
+  {
+    "name": "seed_5214",
+    "parameters": {
+      "effective_cutoff": "2026-10-30T10:00:00Z",
+      "recorded_cutoff": "2026-10-30T09:00:00Z"
+    },
+    "tables": {
+      "order_versions": [
+        {
+          "version_id": 31,
+          "order_id": "S14-3",
+          "effective_at": "2026-10-30T08:00:00Z",
+          "recorded_at": "2026-10-30T08:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 15,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 11,
+          "order_id": "S14-1",
+          "effective_at": "2026-10-30T08:00:00Z",
+          "recorded_at": "2026-10-30T08:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 1,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 5,
+          "order_id": "S14-0",
+          "effective_at": "2026-10-30T11:00:00Z",
+          "recorded_at": "2026-10-30T13:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 16,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 25,
+          "order_id": "S14-2",
+          "effective_at": "2026-10-30T10:00:00Z",
+          "recorded_at": "2026-10-30T11:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 11,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 15,
+          "order_id": "S14-1",
+          "effective_at": "2026-10-30T09:00:00Z",
+          "recorded_at": "2026-10-30T11:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 12,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 34,
+          "order_id": "S14-3",
+          "effective_at": "2026-10-30T10:00:00Z",
+          "recorded_at": "2026-10-30T14:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 14,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 21,
+          "order_id": "S14-2",
+          "effective_at": "2026-10-30T08:00:00Z",
+          "recorded_at": "2026-10-30T08:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 17,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 4,
+          "order_id": "S14-0",
+          "effective_at": "2026-10-30T09:00:00Z",
+          "recorded_at": "2026-10-30T07:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 15,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 23,
+          "order_id": "S14-2",
+          "effective_at": "2026-10-30T12:00:00Z",
+          "recorded_at": "2026-10-30T13:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 15,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 33,
+          "order_id": "S14-3",
+          "effective_at": "2026-10-30T09:00:00Z",
+          "recorded_at": "2026-10-30T07:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 8,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 2,
+          "order_id": "S14-0",
+          "effective_at": "2026-10-30T13:00:00Z",
+          "recorded_at": "2026-10-30T10:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 12,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 14,
+          "order_id": "S14-1",
+          "effective_at": "2026-10-30T13:00:00Z",
+          "recorded_at": "2026-10-30T11:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 12,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 32,
+          "order_id": "S14-3",
+          "effective_at": "2026-10-30T10:00:00Z",
+          "recorded_at": "2026-10-30T10:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 1,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 24,
+          "order_id": "S14-2",
+          "effective_at": "2026-10-30T08:00:00Z",
+          "recorded_at": "2026-10-30T10:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 6,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 1,
+          "order_id": "S14-0",
+          "effective_at": "2026-10-30T13:00:00Z",
+          "recorded_at": "2026-10-30T12:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 5,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 3,
+          "order_id": "S14-0",
+          "effective_at": "2026-10-30T13:00:00Z",
+          "recorded_at": "2026-10-30T14:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 10,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 22,
+          "order_id": "S14-2",
+          "effective_at": "2026-10-30T13:00:00Z",
+          "recorded_at": "2026-10-30T08:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 11,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 13,
+          "order_id": "S14-1",
+          "effective_at": "2026-10-30T07:00:00Z",
+          "recorded_at": "2026-10-30T13:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 6,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 35,
+          "order_id": "S14-3",
+          "effective_at": "2026-10-30T11:00:00Z",
+          "recorded_at": "2026-10-30T13:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 14,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 12,
+          "order_id": "S14-1",
+          "effective_at": "2026-10-30T10:00:00Z",
+          "recorded_at": "2026-10-30T11:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 16,
+          "limit_price_cents": 100
+        }
+      ]
+    }
+  },
+  {
+    "name": "seed_5215",
+    "parameters": {
+      "effective_cutoff": "2026-10-30T08:00:00Z",
+      "recorded_cutoff": "2026-10-30T14:00:00Z"
+    },
+    "tables": {
+      "order_versions": [
+        {
+          "version_id": 11,
+          "order_id": "S15-1",
+          "effective_at": "2026-10-30T10:00:00Z",
+          "recorded_at": "2026-10-30T12:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 14,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 32,
+          "order_id": "S15-3",
+          "effective_at": "2026-10-30T09:00:00Z",
+          "recorded_at": "2026-10-30T11:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 4,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 31,
+          "order_id": "S15-3",
+          "effective_at": "2026-10-30T07:00:00Z",
+          "recorded_at": "2026-10-30T12:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 12,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 34,
+          "order_id": "S15-3",
+          "effective_at": "2026-10-30T11:00:00Z",
+          "recorded_at": "2026-10-30T08:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 16,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 2,
+          "order_id": "S15-0",
+          "effective_at": "2026-10-30T07:00:00Z",
+          "recorded_at": "2026-10-30T08:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 17,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 12,
+          "order_id": "S15-1",
+          "effective_at": "2026-10-30T13:00:00Z",
+          "recorded_at": "2026-10-30T13:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 11,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 35,
+          "order_id": "S15-3",
+          "effective_at": "2026-10-30T08:00:00Z",
+          "recorded_at": "2026-10-30T10:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 7,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 1,
+          "order_id": "S15-0",
+          "effective_at": "2026-10-30T12:00:00Z",
+          "recorded_at": "2026-10-30T08:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 10,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 33,
+          "order_id": "S15-3",
+          "effective_at": "2026-10-30T09:00:00Z",
+          "recorded_at": "2026-10-30T08:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 16,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 23,
+          "order_id": "S15-2",
+          "effective_at": "2026-10-30T13:00:00Z",
+          "recorded_at": "2026-10-30T09:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 14,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 5,
+          "order_id": "S15-0",
+          "effective_at": "2026-10-30T09:00:00Z",
+          "recorded_at": "2026-10-30T13:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 5,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 13,
+          "order_id": "S15-1",
+          "effective_at": "2026-10-30T09:00:00Z",
+          "recorded_at": "2026-10-30T13:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 12,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 22,
+          "order_id": "S15-2",
+          "effective_at": "2026-10-30T10:00:00Z",
+          "recorded_at": "2026-10-30T08:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 17,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 24,
+          "order_id": "S15-2",
+          "effective_at": "2026-10-30T07:00:00Z",
+          "recorded_at": "2026-10-30T13:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 19,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 3,
+          "order_id": "S15-0",
+          "effective_at": "2026-10-30T10:00:00Z",
+          "recorded_at": "2026-10-30T07:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 18,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 14,
+          "order_id": "S15-1",
+          "effective_at": "2026-10-30T12:00:00Z",
+          "recorded_at": "2026-10-30T13:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 5,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 25,
+          "order_id": "S15-2",
+          "effective_at": "2026-10-30T09:00:00Z",
+          "recorded_at": "2026-10-30T14:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 13,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 21,
+          "order_id": "S15-2",
+          "effective_at": "2026-10-30T08:00:00Z",
+          "recorded_at": "2026-10-30T10:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 18,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 15,
+          "order_id": "S15-1",
+          "effective_at": "2026-10-30T07:00:00Z",
+          "recorded_at": "2026-10-30T07:00:00Z",
+          "operation": "DELETE",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 4,
+          "limit_price_cents": 100
+        },
+        {
+          "version_id": 4,
+          "order_id": "S15-0",
+          "effective_at": "2026-10-30T12:00:00Z",
+          "recorded_at": "2026-10-30T09:00:00Z",
+          "operation": "UPSERT",
+          "symbol": "XYZ",
+          "side": "BUY",
+          "open_qty": 9,
+          "limit_price_cents": 100
+        }
+      ]
+    }
+  }
+]

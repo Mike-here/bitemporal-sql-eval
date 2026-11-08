@@ -9,14 +9,14 @@ import argparse
 from datetime import datetime, timezone
 import hashlib
 import json
-import os
 from pathlib import Path
 import platform
 import sqlite3
 import subprocess
 import time
 
-from harness.providers import ProviderError, generate, output_text, request_payload
+from harness.providers import ProviderError, completion_status, generate, output_text, request_payload
+from harness.credentials import load_credentials
 from harness.tasks import ROOT, load_task
 
 
@@ -38,19 +38,20 @@ def environment():
 
 def run_trial(task, model, api_key, trial, *, generate_fn=generate):
     record = dict(kind="model_trial", task=task.task_id, trial=trial, started_at=now(),
-                  requested_model=model["model"], environment=environment(),
+                  provider=model.get("provider", "openai"), requested_model=model["model"], environment=environment(),
                   artifact_hashes=task.artifact_hashes,
                   prompt_sha256=hashlib.sha256(task.model_input.encode()).hexdigest(),
                   request=request_payload(model, task.model_input))
     started = time.monotonic()
     try:
         payload, response = generate_fn(model, task.model_input, api_key)
-        record.update(request=payload, response=response, returned_model=response.get("model"),
-                      usage=response.get("usage"))
-        if response.get("status") == "incomplete":
+        record.update(request=payload, response=response, returned_model=response.get("model", response.get("modelVersion")),
+                      usage=response.get("usage", response.get("usageMetadata")))
+        status = completion_status(response, model.get("provider", "openai"))
+        if status == "incomplete":
             record.update(status="incomplete", error="Provider reported incomplete output; inspect incomplete_details.")
-        elif response.get("status") != "completed":
-            record.update(status="api_error", error="Provider did not report a completed response.")
+        elif status != "completed":
+            record.update(status=status, error="Provider did not report a completed response.")
         else:
             candidate = output_text(response)
             record.update(status="graded", candidate_sql=candidate, grade=task.grade(candidate).to_dict())
@@ -67,6 +68,7 @@ def main():
     mode.add_argument("--sql", type=Path, help="Offline: grade a saved SQL response, no API call.")
     mode.add_argument("--model", help="Live: alias in configs/models.json; incurs provider usage.")
     parser.add_argument("--trials", type=int, default=3)
+    parser.add_argument("--phase", choices=["diagnostic", "formal"], default="diagnostic")
     parser.add_argument("--output", type=Path, required=True, help="New report file; existing files are never overwritten.")
     args = parser.parse_args()
     if args.trials < 1:
@@ -86,13 +88,15 @@ def main():
     model = next((model for model in models if model["alias"] == args.model), None)
     if not model:
         parser.error(f"Unknown model alias {args.model!r}")
-    api_key = os.environ.get("OPENAI_API_KEY")
+    key_name = "GEMINI_API_KEY" if model.get("provider") == "gemini" else "OPENAI_API_KEY"
+    api_key = load_credentials(ROOT / ".env").get(key_name)
     if not api_key:
-        parser.error("Set OPENAI_API_KEY in your environment. No request was made.")
+        parser.error(f"Set {key_name} in .env or your environment. No request was made.")
     # Exclusive creation occurs before any paid request. No overwrite/retry/hiding.
     with args.output.open("x") as file:
         for trial in range(1, args.trials + 1):
             record = run_trial(task, model, api_key, trial)
+            record["phase"] = args.phase
             file.write(json.dumps(record) + "\n")
             file.flush()
             print(f"{args.task} {model['alias']} trial {trial}: {record['status']}")

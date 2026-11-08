@@ -6,26 +6,41 @@ import json
 from pathlib import Path
 import re
 import zipfile
+import io
+import sys
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0,str(ROOT))
+from harness.credentials import load_credentials
 FILES = ["README.md", "pyproject.toml", "uv.lock", ".python-version", ".env.example", ".gitignore"]
 DIRECTORIES = ["configs", "tasks", "reference", "graders", "harness", "tests", "docs", "scripts", "results", "transcripts"]
-SUFFIXES = {".py", ".json", ".jsonl", ".md", ".sql", ".csv", ".txt", ".toml", ".xml"}
+SUFFIXES = {".py", ".json", ".jsonl", ".md", ".sql", ".csv", ".txt", ".toml", ".xml", ".zip"}
 
 
 def package(destination: Path):
+    credentials=[value.encode() for value in load_credentials(ROOT/".env").values() if value]
+    def check_payload(name,data,depth=0):
+        if any(secret in data for secret in credentials):
+            raise ValueError(f"Credential value detected in {name}; refusing package.")
+        if re.search(rb"(?:sk-[A-Za-z0-9_-]{20,}|AIza[A-Za-z0-9_-]{30,})",data):
+            raise ValueError(f"Potential credential in {name}; refusing package.")
+        if name.endswith(".zip"):
+            if depth>=3:raise ValueError("Unexpected archive nesting.")
+            with zipfile.ZipFile(io.BytesIO(data)) as nested:
+                for member in nested.namelist():
+                    if member.split("/")[-1]==".env":raise ValueError("Nested .env is forbidden.")
+                    check_payload(member,nested.read(member),depth+1)
     paths = [ROOT / name for name in FILES]
     for directory in DIRECTORIES:
         paths.extend(path for path in (ROOT / directory).rglob("*")
                      if path.is_file() and path.suffix in SUFFIXES
                      and "__pycache__" not in path.parts and not path.name.startswith("."))
-    paths = sorted(set(paths))
+    paths = sorted(path for path in set(paths) if path.resolve()!=destination.resolve())
     destination.parent.mkdir(parents=True, exist_ok=True)
     with zipfile.ZipFile(destination, "w", compression=zipfile.ZIP_DEFLATED) as archive:
         for path in paths:
             data = path.read_bytes()
-            if re.search(rb"sk-[A-Za-z0-9_-]{20,}", data):
-                raise ValueError(f"Potential credential in {path.relative_to(ROOT)}; refusing package.")
+            check_payload(str(path.relative_to(ROOT)),data)
             info = zipfile.ZipInfo(str(path.relative_to(ROOT)), date_time=(2026, 11, 8, 0, 0, 0))
             info.compress_type = zipfile.ZIP_DEFLATED
             info.external_attr = 0o100644 << 16

@@ -1,7 +1,14 @@
 {
   "id": "t01",
   "title": "Baseline bitemporal order-state reconstruction",
-  "status": "implemented_pending_human_review_and_model_calibration",
+  "status": "participant_reviewed_pending_model_calibration",
+  "participant_review": {
+    "status": "human_verified",
+    "reviewer": "Michael Acheampong",
+    "date": "2026-11-08",
+    "scope": ["prompt", "SQL reference", "Python oracle"],
+    "record": "reference/t01/review.md"
+  },
   "failure_hypothesis": "Models fail to preserve the interaction between knowledge visibility and effective-state precedence when corrections arrive out of order.",
   "output_columns": ["order_id", "symbol", "side", "open_qty", "limit_price_cents"],
   "output_types": ["text", "text", "text", "integer", "integer"],
